@@ -2018,6 +2018,24 @@ document.addEventListener('DOMContentLoaded', function() {
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
 }
+
+// ---- Android back button handler ----
+// Push a state on load so the first back press is intercepted
+history.pushState({page:'home'}, '');
+
+window.addEventListener('popstate', function(e) {
+  const activeTab = document.querySelector('.tab.on');
+  const activeTabId = activeTab ? activeTab.dataset.tab : 'home';
+
+  // If already on home tab, do nothing — let the browser handle it (exits app)
+  if(activeTabId === 'home') {
+    return;
+  }
+
+  // Otherwise go to home and push state again so next back is also intercepted
+  goTab('home');
+  history.pushState({page:'home'}, '');
+});
 </script>
 </body>
 </html>
