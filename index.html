@@ -2031,74 +2031,81 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-// ---- Install prompt ----
-let deferredPrompt = null;
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-// Android install prompt
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Show banner after 2 seconds if not already installed
-  if(!isInStandaloneMode && !localStorage.getItem('install_dismissed')) {
-    setTimeout(() => {
-      document.getElementById('install-banner').classList.add('show');
-    }, 2000);
-  }
-});
-
-window.addEventListener('appinstalled', function() {
-  document.getElementById('install-banner').classList.remove('show');
-  deferredPrompt = null;
-});
-
-// iOS banner — show after 3 seconds if on iOS Safari and not installed
-if(isIOS && !isInStandaloneMode && !localStorage.getItem('ios_dismissed')) {
-  const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|chromium|crios/i.test(navigator.userAgent);
-  if(isSafari) {
-    setTimeout(() => {
-      document.getElementById('ios-banner').classList.add('show');
-    }, 3000);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Android install button
-  const installBtn = document.getElementById('install-btn');
-  if(installBtn) {
-    installBtn.addEventListener('click', async function() {
-      if(!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const result = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('install-banner').classList.remove('show');
-      if(result.outcome === 'accepted') toast('App installed! 🔥');
-    });
-  }
-
-  const installClose = document.getElementById('install-close');
-  if(installClose) {
-    installClose.addEventListener('click', function() {
-      document.getElementById('install-banner').classList.remove('show');
-      localStorage.setItem('install_dismissed', '1');
-    });
-  }
-
-  const iosClose = document.getElementById('ios-close');
-  if(iosClose) {
-    iosClose.addEventListener('click', function() {
-      document.getElementById('ios-banner').classList.remove('show');
-      localStorage.setItem('ios_dismissed', '1');
-    });
-  }
-});
 
 <script>
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
 }
 
+// Install prompt
+let deferredPrompt = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+if(!isStandalone) {
+  // Android - intercept Chrome install prompt
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(!localStorage.getItem('install_dismissed')) {
+      setTimeout(function() {
+        const b = document.getElementById('install-banner');
+        if(b) b.classList.add('show');
+      }, 2000);
+    }
+  });
+
+  window.addEventListener('appinstalled', function() {
+    const b = document.getElementById('install-banner');
+    if(b) b.classList.remove('show');
+    deferredPrompt = null;
+  });
+
+  // iOS Safari only
+  if(isIOS && !localStorage.getItem('ios_dismissed')) {
+    const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|chromium/i.test(navigator.userAgent);
+    if(isSafari) {
+      setTimeout(function() {
+        const b = document.getElementById('ios-banner');
+        if(b) b.classList.add('show');
+      }, 3000);
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const installBtn = document.getElementById('install-btn');
+  if(installBtn) {
+    installBtn.addEventListener('click', function() {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function() {
+        deferredPrompt = null;
+        const b = document.getElementById('install-banner');
+        if(b) b.classList.remove('show');
+      });
+    });
+  }
+  const installClose = document.getElementById('install-close');
+  if(installClose) {
+    installClose.addEventListener('click', function() {
+      const b = document.getElementById('install-banner');
+      if(b) b.classList.remove('show');
+      localStorage.setItem('install_dismissed', '1');
+    });
+  }
+  const iosClose = document.getElementById('ios-close');
+  if(iosClose) {
+    iosClose.addEventListener('click', function() {
+      const b = document.getElementById('ios-banner');
+      if(b) b.classList.remove('show');
+      localStorage.setItem('ios_dismissed', '1');
+    });
+  }
+});
+</script>
+
+<script>
 // ---- Android back button handler ----
 // Push a state on load so the first back press is intercepted
 history.pushState({page:'home'}, '');
