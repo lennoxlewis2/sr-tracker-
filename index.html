@@ -264,11 +264,13 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .ws-step:last-child{margin-bottom:0;}
   .ws-step-ic{font-size:20px;flex-shrink:0;}
 
-  .tabs{touch-action:none;}
-  .tab.dragging{opacity:.4;transform:scale(0.95);}
-  .tab.drag-over{background:var(--acl);border-radius:var(--r1);}
-  .tab-reorder-hint{display:none;text-align:center;font-size:10px;color:var(--tt);padding:3px 0;background:var(--sf);border-top:.5px solid var(--bd);}
-  .tab-reorder-hint.show{display:block;}
+  .tabs{touch-action:none;user-select:none;-webkit-user-select:none;}
+  .tab{transition:transform 0.18s cubic-bezier(.34,1.4,.64,1),opacity 0.15s,background 0.15s;}
+  .tab.t-dragging{opacity:0.15;transform:scale(0.85)!important;transition:none;}
+  .tab.t-lifted{position:fixed;z-index:9999;pointer-events:none;background:var(--ac)!important;color:white!important;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3);transform:scale(1.12);transition:none;}
+  .tab.t-lifted .tab-ic{color:white!important;}
+  .tab.t-shift-left{transform:translateX(-100%);transition:transform 0.18s cubic-bezier(.34,1.56,.64,1);}
+  .tab.t-shift-right{transform:translateX(100%);transition:transform 0.18s cubic-bezier(.34,1.56,.64,1);}
 </style>
 </head>
 <body>
@@ -2244,164 +2246,149 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+
 <script>
-// ---- Tab reorder (drag on desktop, long-press drag on mobile) ----
+// ---- Smooth tab reorder ----
 (function() {
   var nav = document.querySelector('.tabs');
-  var hint = document.getElementById('reorder-hint');
   if(!nav) return;
 
-  var dragSrc = null;
-  var longPressTimer = null;
-  var isDragging = false;
-  var startX = 0, startY = 0;
-  var clone = null;
-  var tabs = [];
+  var LONG_PRESS_MS = 380;
+  var pressTimer = null;
+  var dragging = false;
+  var srcTab = null;
+  var liftedClone = null;
+  var tabW = 0;
+  var startTouchX = 0, startTouchY = 0;
+  var cloneOffsetX = 0;
+  var navRect = null;
+  var lastInsertBefore = null;
+
+  function getTabs() { return Array.from(nav.querySelectorAll('.tab')); }
 
   function saveOrder() {
-    var order = Array.from(nav.querySelectorAll('.tab')).map(function(t) { return t.dataset.tab; });
-    localStorage.setItem('tab_order', JSON.stringify(order));
+    localStorage.setItem('tab_order', JSON.stringify(getTabs().map(function(t){return t.dataset.tab;})));
   }
 
   function loadOrder() {
     try {
-      var saved = localStorage.getItem('tab_order');
+      var saved = JSON.parse(localStorage.getItem('tab_order')||'null');
       if(!saved) return;
-      var order = JSON.parse(saved);
-      var tabEls = Array.from(nav.querySelectorAll('.tab'));
       var map = {};
-      tabEls.forEach(function(t) { map[t.dataset.tab] = t; });
-      order.forEach(function(id) {
-        if(map[id]) nav.appendChild(map[id]);
-      });
-    } catch(e) {}
+      getTabs().forEach(function(t){ map[t.dataset.tab]=t; });
+      saved.forEach(function(id){ if(map[id]) nav.appendChild(map[id]); });
+    } catch(e){}
   }
 
-  // Show hint briefly on first visit
-  if(!localStorage.getItem('tab_order_hinted')) {
-    setTimeout(function() {
-      if(hint) hint.classList.add('show');
-      setTimeout(function() {
-        if(hint) hint.classList.remove('show');
-        localStorage.setItem('tab_order_hinted', '1');
-      }, 3000);
-    }, 5000);
+  function startDrag(tab, touchX, touchY) {
+    dragging = true;
+    srcTab = tab;
+    navRect = nav.getBoundingClientRect();
+    tabW = tab.getBoundingClientRect().width;
+
+    // Create floating clone
+    var r = tab.getBoundingClientRect();
+    cloneOffsetX = touchX - r.left - tabW/2;
+
+    liftedClone = tab.cloneNode(true);
+    liftedClone.classList.add('t-lifted');
+    liftedClone.classList.remove('on','tab');
+    liftedClone.style.width = tabW + 'px';
+    liftedClone.style.height = r.height + 'px';
+    liftedClone.style.display = 'flex';
+    liftedClone.style.flexDirection = 'column';
+    liftedClone.style.alignItems = 'center';
+    liftedClone.style.justifyContent = 'center';
+    liftedClone.style.padding = '4px 0';
+    liftedClone.style.fontSize = '10px';
+    liftedClone.style.fontWeight = '500';
+    liftedClone.style.left = (touchX - tabW/2) + 'px';
+    liftedClone.style.top = (r.top - 4) + 'px';
+    document.body.appendChild(liftedClone);
+
+    tab.classList.add('t-dragging');
+    if(navigator.vibrate) navigator.vibrate([15, 10, 15]);
   }
 
-  // ---- Touch drag ----
+  function moveDrag(touchX) {
+    if(!dragging || !liftedClone || !srcTab) return;
+
+    // Move clone smoothly
+    liftedClone.style.left = (touchX - tabW/2) + 'px';
+
+    // Find target position
+    var tabs = getTabs();
+    var srcIdx = tabs.indexOf(srcTab);
+    var centerX = touchX;
+
+    var targetIdx = srcIdx;
+    for(var i=0; i<tabs.length; i++) {
+      var r = tabs[i].getBoundingClientRect();
+      if(centerX > r.left + r.width*0.35 && centerX < r.right - r.width*0.35) {
+        targetIdx = i;
+        break;
+      }
+      if(i === tabs.length-1 && centerX > r.left) targetIdx = i;
+      if(i === 0 && centerX < r.right) targetIdx = 0;
+    }
+
+    if(targetIdx !== srcIdx) {
+      // Smoothly move src to target position
+      var insertBefore = tabs[targetIdx > srcIdx ? targetIdx + 1 : targetIdx] || null;
+      if(insertBefore !== lastInsertBefore) {
+        lastInsertBefore = insertBefore;
+        nav.insertBefore(srcTab, insertBefore);
+        if(navigator.vibrate) navigator.vibrate(8);
+      }
+    }
+  }
+
+  function endDrag() {
+    if(!dragging) return;
+    dragging = false;
+    if(srcTab) srcTab.classList.remove('t-dragging');
+    if(liftedClone && liftedClone.parentNode) liftedClone.parentNode.removeChild(liftedClone);
+    liftedClone = null;
+    srcTab = null;
+    lastInsertBefore = null;
+    saveOrder();
+    if(navigator.vibrate) navigator.vibrate(20);
+  }
+
   nav.addEventListener('touchstart', function(e) {
     var tab = e.target.closest('.tab');
     if(!tab) return;
-    var touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-
-    longPressTimer = setTimeout(function() {
-      isDragging = true;
-      dragSrc = tab;
-      tab.classList.add('dragging');
-      if(hint) { hint.textContent = 'Drag to reorder'; hint.classList.add('show'); }
-
-      // Create visual clone
-      clone = tab.cloneNode(true);
-      clone.style.cssText = 'position:fixed;z-index:9999;opacity:0.85;pointer-events:none;background:var(--ac);color:white;border-radius:8px;padding:4px 8px;font-size:9px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:48px;';
-      clone.style.left = (touch.clientX - 30) + 'px';
-      clone.style.top = (touch.clientY - 40) + 'px';
-      document.body.appendChild(clone);
-
-      if(navigator.vibrate) navigator.vibrate(30);
-    }, 400);
+    var t = e.touches[0];
+    startTouchX = t.clientX;
+    startTouchY = t.clientY;
+    pressTimer = setTimeout(function() {
+      startDrag(tab, startTouchX, startTouchY);
+    }, LONG_PRESS_MS);
   }, {passive: true});
 
   nav.addEventListener('touchmove', function(e) {
-    if(!isDragging) {
-      // Cancel long press if moved
-      var touch = e.touches[0];
-      if(Math.abs(touch.clientX - startX) > 8 || Math.abs(touch.clientY - startY) > 8) {
-        clearTimeout(longPressTimer);
+    var t = e.touches[0];
+    if(!dragging) {
+      // Cancel if moved significantly before long press fires
+      if(Math.abs(t.clientX - startTouchX) > 6 || Math.abs(t.clientY - startTouchY) > 6) {
+        clearTimeout(pressTimer);
       }
       return;
     }
     e.preventDefault();
-    var touch = e.touches[0];
-
-    // Move clone
-    if(clone) {
-      clone.style.left = (touch.clientX - 30) + 'px';
-      clone.style.top = (touch.clientY - 40) + 'px';
-    }
-
-    // Find tab under finger
-    var allTabs = Array.from(nav.querySelectorAll('.tab'));
-    allTabs.forEach(function(t) { t.classList.remove('drag-over'); });
-
-    var el = document.elementFromPoint(touch.clientX, touch.clientY);
-    var target = el ? el.closest('.tab') : null;
-    if(target && target !== dragSrc) {
-      target.classList.add('drag-over');
-      // Reorder
-      var tabsList = Array.from(nav.querySelectorAll('.tab'));
-      var srcIdx = tabsList.indexOf(dragSrc);
-      var tgtIdx = tabsList.indexOf(target);
-      if(srcIdx < tgtIdx) {
-        nav.insertBefore(dragSrc, target.nextSibling);
-      } else {
-        nav.insertBefore(dragSrc, target);
-      }
-    }
+    moveDrag(t.clientX);
   }, {passive: false});
 
-  nav.addEventListener('touchend', function(e) {
-    clearTimeout(longPressTimer);
-    if(!isDragging) return;
-    isDragging = false;
-    if(dragSrc) dragSrc.classList.remove('dragging');
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
-    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
-    clone = null;
-    dragSrc = null;
-    if(hint) { hint.textContent = 'Hold & drag tabs to reorder'; hint.classList.remove('show'); }
-    saveOrder();
-    if(navigator.vibrate) navigator.vibrate(20);
+  nav.addEventListener('touchend', function() {
+    clearTimeout(pressTimer);
+    endDrag();
   }, {passive: true});
 
   nav.addEventListener('touchcancel', function() {
-    clearTimeout(longPressTimer);
-    isDragging = false;
-    if(dragSrc) dragSrc.classList.remove('dragging');
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
-    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
-    clone = null; dragSrc = null;
+    clearTimeout(pressTimer);
+    endDrag();
   }, {passive: true});
 
-  // ---- Desktop drag (for testing in browser) ----
-  nav.addEventListener('dragstart', function(e) {
-    dragSrc = e.target.closest('.tab');
-    if(dragSrc) { dragSrc.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
-  });
-  nav.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    var target = e.target.closest('.tab');
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
-    if(target && target !== dragSrc) {
-      target.classList.add('drag-over');
-      var tabsList = Array.from(nav.querySelectorAll('.tab'));
-      var srcIdx = tabsList.indexOf(dragSrc);
-      var tgtIdx = tabsList.indexOf(target);
-      if(srcIdx < tgtIdx) nav.insertBefore(dragSrc, target.nextSibling);
-      else nav.insertBefore(dragSrc, target);
-    }
-  });
-  nav.addEventListener('dragend', function() {
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('dragging'); t.classList.remove('drag-over'); });
-    dragSrc = null;
-    saveOrder();
-  });
-
-  // Make tabs draggable on desktop
-  document.querySelectorAll('.tab').forEach(function(t) { t.setAttribute('draggable', 'true'); });
-
-  // Load saved order on startup
   loadOrder();
 })();
 </script>
