@@ -663,7 +663,6 @@ function save() { try { localStorage.setItem('sr_v3', JSON.stringify(S)); } catc
 let curTheme = localStorage.getItem('sr_theme') || 'purple';
 let qIdx = 0, qTimer = null;
 let storyIdx = 0, stories = [...STORIES];
-let medPlaying = false;
 
 // ===================== UTILS =====================
 function toast(msg) {
@@ -733,6 +732,7 @@ function updateFlame(n) {
   const svg = document.getElementById('fsv');
   const fw = document.getElementById('fw');
   if(!svg || !fw) return;
+  if(typeof svg.setAttribute !== 'function') return;
   const scale = 1 + Math.min(n / 90, 1) * 0.8;
   const w = Math.round(44 * scale), h = Math.round(56 * scale);
   fw.style.width = w+'px'; fw.style.height = h+'px';
@@ -1097,8 +1097,7 @@ const MED_PHASES = [
   }
 ];
 
-let medCtx = null, medGain = null, medRunning = false, medStopFlag = false;
-let medPhaseIdx = 0, medStepIdx = 0, medTimers = [];
+let medCtx = null, medGain = null, medRunning = false, medStopFlag = false, medPhaseIdx = 0, medStepIdx = 0, medTimers = [];
 
 function medClearTimers() {
   medTimers.forEach(t => clearTimeout(t));
@@ -1261,8 +1260,7 @@ function medStop() {
   if(txt) txt.textContent = '';
   if(status) status.textContent = 'Tap Begin when you are ready';
   medSetBreath(null, 'BEGIN', 0);
-  document.getElementById('breath-label').textContent = 'TAP
-BEGIN';
+  document.getElementById('breath-label').innerHTML = 'TAP<br>BEGIN';
   const dots = document.getElementById('med-dots');
   if(dots) dots.innerHTML = '';
 }
