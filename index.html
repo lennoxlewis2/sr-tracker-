@@ -1303,11 +1303,43 @@ function closeSettings() { document.getElementById('s-overlay').style.display = 
 function sendBug() {
   const msg = document.getElementById('bug-txt').value.trim();
   if(!msg) { toast('Please describe the bug first'); return; }
-  const sub = encodeURIComponent('The Transmute App Bug Report');
-  const body = encodeURIComponent('Bug:\n\n' + msg + '\n\n---\nDay: ' + calcStreak() + '\nTheme: ' + curTheme + '\nEntries: ' + S.entries.length);
-  window.location.href = 'mailto:lewiscurtis2@hotmail.co.uk?subject=' + sub + '&body=' + body;
-  document.getElementById('bug-txt').value = '';
-  toast('Opening email app...');
+  const btn = document.getElementById('send-bug');
+  if(btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
+
+  // Load EmailJS if not already loaded
+  function doSend() {
+    emailjs.send('lewiscurtis2', 'template_kjkn3uf', {
+      message: msg,
+      day: calcStreak(),
+      theme: curTheme,
+      entries: S.entries.length
+    }, 'RJ6SDav9013CMCKbD')
+    .then(function() {
+      document.getElementById('bug-txt').value = '';
+      toast('Bug report sent! Thank you.');
+      if(btn) { btn.textContent = 'Send bug report'; btn.disabled = false; }
+    }, function(err) {
+      console.error('EmailJS error:', err);
+      // Fallback to mailto
+      const sub = encodeURIComponent('The Transmute App Bug Report');
+      const body = encodeURIComponent('Bug:\n\n' + msg + '\n\n---\nDay: ' + calcStreak() + '\nTheme: ' + curTheme + '\nEntries: ' + S.entries.length);
+      window.location.href = 'mailto:lewiscurtis2@hotmail.co.uk?subject=' + sub + '&body=' + body;
+      if(btn) { btn.textContent = 'Send bug report'; btn.disabled = false; }
+    });
+  }
+
+  if(typeof emailjs === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    script.onload = function() { emailjs.init('RJ6SDav9013CMCKbD'); doSend(); };
+    script.onerror = function() {
+      toast('Could not connect. Check your internet and try again.');
+      if(btn) { btn.textContent = 'Send bug report'; btn.disabled = false; }
+    };
+    document.head.appendChild(script);
+  } else {
+    doSend();
+  }
 }
 
 function exportCSV() {
