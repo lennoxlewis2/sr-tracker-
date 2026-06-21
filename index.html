@@ -186,6 +186,18 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 /* Toast */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--sf);padding:9px 18px;border-radius:18px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;white-space:nowrap;}
 .toast.on{opacity:1;}
+
+  /* Meditation */
+  @keyframes breathePulse{0%,100%{transform:scale(1);opacity:.7;}50%{transform:scale(1.15);opacity:1;}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .med-text-animate{animation:fadeInUp .8s ease forwards;}
+  #breath-ring{box-shadow:0 0 0 0 rgba(102,68,255,0);}
+  #breath-ring.inhale{box-shadow:0 0 24px 4px rgba(102,68,255,0.5);}
+  #breath-ring.hold{box-shadow:0 0 24px 8px rgba(180,68,255,0.4);}
+  #breath-ring.exhale{box-shadow:0 0 8px 0px rgba(102,68,255,0.1);}
+  .med-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all .4s;}
+  .med-dot.on{background:#9977EE;transform:scale(1.3);}
+  .med-dot.done{background:#4433AA;}
 </style>
 </head>
 <body>
@@ -401,18 +413,38 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       </div>
     </div>
     <div id="tr-meditation" style="display:none">
-      <div class="card"><div class="lbl">Guided Transmutation Meditation</div><p style="font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:0">This guided meditation uses visualisation and breath to move sexual energy up through your chakra system and convert it into creative and spiritual power. Do this in a quiet space, eyes closed, 10–20 minutes.</p></div>
-      <div class="card" style="background:linear-gradient(135deg,#0A0520,#1A0A3A);border-color:#6644FF">
-        <div style="text-align:center;margin-bottom:14px"><div style="font-size:38px;margin-bottom:7px">🧘</div><div style="font-size:14px;font-weight:600;color:#C8A8FF">Sexual Transmutation Meditation</div><div style="font-size:12px;color:#8866CC;margin-top:3px">~15 minutes · Find a quiet space</div></div>
-        <button class="btn" id="med-btn" style="background:#6644FF;margin-top:0">▶ Begin Guided Session</button>
-      </div>
-      <div class="card">
-        <div class="lbl">Meditation Script</div>
-        <div class="med-step"><div class="med-step-title">Phase 1 — Grounding (2 min)</div><p>Close your eyes. Sit with your spine straight. Take three deep breaths — inhale for 4, hold for 4, exhale for 8. Feel your body settle. You are safe. You are still.</p></div>
-        <div class="med-step"><div class="med-step-title">Phase 2 — Acknowledge the Energy (2 min)</div><p>Bring awareness to your sacral centre — just below your navel. Notice any warmth or tension without judgement. This is raw life force. It is power waiting to be directed.</p></div>
-        <div class="med-step"><div class="med-step-title">Phase 3 — The Upward Draw (5 min)</div><p>On each inhale, visualise a golden light rising from the base of your spine. With each breath it climbs higher — heart, throat, third eye. On exhale, let it radiate from your crown as pure white light.</p></div>
-        <div class="med-step"><div class="med-step-title">Phase 4 — Transmutation (4 min)</div><p>Set an intention. What will you create with this energy? Hold that image at your third eye. Pour the rising energy directly into it. Feel it charge with life.</p></div>
-        <div class="med-step"><div class="med-step-title">Phase 5 — Integration (2 min)</div><p>Let the visualisation fade. Rest in stillness. Feel the quiet power in your body. This energy is now yours — stored, not wasted. Three deep breaths. Open your eyes.</p></div>
+      <div class="card"><div class="lbl">Guided Transmutation Meditation</div><p style="font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:0">Find a quiet space. Sit comfortably with your spine straight. Put your phone down and close your eyes once the session begins. The meditation will guide you step by step with pauses.</p></div>
+
+      <!-- MEDITATION PLAYER -->
+      <div id="med-player" style="background:linear-gradient(160deg,#0A0520,#1A0838,#0A0520);border:.5px solid #6644FF;border-radius:16px;padding:20px;margin-bottom:12px;">
+        <!-- Phase display -->
+        <div style="text-align:center;margin-bottom:18px;">
+          <div style="font-size:32px;margin-bottom:8px" id="med-phase-icon">🧘</div>
+          <div style="font-size:13px;font-weight:600;color:#C8A8FF;margin-bottom:4px" id="med-phase-name">Sexual Transmutation Meditation</div>
+          <div style="font-size:11px;color:#7755AA" id="med-duration">~15 minutes · 5 phases</div>
+        </div>
+
+        <!-- Breathing ring -->
+        <div style="display:flex;justify-content:center;margin-bottom:18px;">
+          <div id="breath-ring" style="width:90px;height:90px;border-radius:50%;border:3px solid #6644FF;display:flex;align-items:center;justify-content:center;transition:all 4s ease-in-out;position:relative;">
+            <div id="breath-ring-inner" style="width:50px;height:50px;border-radius:50%;background:rgba(102,68,255,0.3);transition:all 4s ease-in-out;display:flex;align-items:center;justify-content:center;">
+              <span id="breath-label" style="font-size:10px;color:#C8A8FF;font-weight:600;text-align:center;line-height:1.2">TAP<br>BEGIN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current instruction -->
+        <div id="med-text" style="min-height:80px;text-align:center;font-size:14px;color:#C8A8FF;line-height:1.8;padding:0 8px;font-style:italic;transition:opacity 0.8s;"></div>
+
+        <!-- Progress dots -->
+        <div style="display:flex;justify-content:center;gap:8px;margin:14px 0;" id="med-dots"></div>
+
+        <!-- Controls -->
+        <div class="btn-row" style="gap:8px;margin-top:4px;">
+          <button id="med-btn" style="flex:2;padding:13px;background:#6644FF;color:white;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">▶ Begin</button>
+          <button id="med-stop" style="flex:1;padding:13px;background:rgba(255,255,255,0.08);color:#9977EE;border:.5px solid #6644FF;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;">■ Stop</button>
+        </div>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:#554488" id="med-status">Tap Begin when you are ready</div>
       </div>
     </div>
     <div id="tr-poses" style="display:none">
@@ -979,24 +1011,272 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-// ===================== MEDITATION =====================
-function toggleMed() {
-  const btn = document.getElementById('med-btn');
-  if(!('speechSynthesis' in window)) { toast('Text-to-speech not supported — read the script below'); return; }
-  if(medPlaying) {
-    window.speechSynthesis.cancel(); medPlaying = false; btn.textContent = '▶ Begin Guided Session'; return;
+// ===================== MEDITATION ENGINE =====================
+const MED_PHASES = [
+  {
+    icon:'🌱', name:'Phase 1 — Grounding', color:'#5DCAA5',
+    steps:[
+      {text:'Find a comfortable position... sit with your spine long and tall... let your hands rest gently on your knees...', pause:6000},
+      {text:'Close your eyes...', pause:4000},
+      {text:'Take a slow breath in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'Hold gently...', pause:2500, breath:'hold', breathLabel:'HOLD', breathDur:4},
+      {text:'And breathe all the way out... slowly... completely...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:8},
+      {text:'Again... breathe in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'Hold...', pause:2500, breath:'hold', breathLabel:'HOLD', breathDur:4},
+      {text:'And release...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:8},
+      {text:'One more time... deep breath in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'Hold...', pause:2500, breath:'hold', breathLabel:'HOLD', breathDur:4},
+      {text:'And let it all go...', pause:6000, breath:'exhale', breathLabel:'EXHALE', breathDur:8},
+      {text:'Feel your body becoming heavier... more relaxed... with each breath...', pause:7000},
+      {text:'You are safe... you are still... nothing needs to happen right now...', pause:8000},
+    ]
+  },
+  {
+    icon:'🔥', name:'Phase 2 — Acknowledging the Energy', color:'#FF8800',
+    steps:[
+      {text:'Now... bring your gentle awareness to your lower belly... just below your navel...', pause:8000},
+      {text:'Without judgement... simply notice... is there any warmth there... any tension... any stirring...', pause:9000},
+      {text:'Whatever you feel... it is welcome here...', pause:6000},
+      {text:'This is not something to fight... or suppress...', pause:6000},
+      {text:'This is life force energy... raw... powerful... waiting to be directed...', pause:8000},
+      {text:'Place one hand gently on your lower belly if you wish... feel the warmth of your own energy...', pause:9000},
+      {text:'You are not your urges... you are the awareness that observes them...', pause:8000},
+    ]
+  },
+  {
+    icon:'⬆️', name:'Phase 3 — The Upward Draw', color:'#FFD700',
+    steps:[
+      {text:'Now we begin to move this energy...', pause:5000},
+      {text:'On your next inhale... imagine a warm golden light... beginning to rise... from the very base of your spine...', pause:8000},
+      {text:'Breathe in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'Feel the light rise through your belly... your solar plexus... warming from inside...', pause:7000},
+      {text:'Breathe out slowly...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Again... breathe in deeply...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'The light rises through your heart centre... expanding your chest... filling you with warmth...', pause:8000},
+      {text:'Exhale...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Breathe in once more...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'The light continues upward... through your throat... your third eye... to the very crown of your head...', pause:8000},
+      {text:'As you exhale... let it radiate outward from your crown... in all directions... as pure white light...', pause:8000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Continue this with each breath on your own... drawing the light up on every inhale... releasing it from your crown on every exhale...', pause:15000},
+      {text:'Good... keep breathing...', pause:10000},
+    ]
+  },
+  {
+    icon:'✨', name:'Phase 4 — Transmutation', color:'#CC44FF',
+    steps:[
+      {text:'Now... with your energy flowing freely upward... I want you to set an intention...', pause:8000},
+      {text:'What will you create with this power...', pause:6000},
+      {text:'A vision... a goal... a project... a version of yourself...', pause:7000},
+      {text:'Let it appear at your third eye... between your eyebrows...', pause:7000},
+      {text:'See it clearly... feel it as already real...', pause:8000},
+      {text:'Now on your next inhale... draw that golden energy upward once more...', pause:4000, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'And pour it directly into that vision... charge it with your life force...', pause:8000},
+      {text:'Feel it becoming real... vibrant... inevitable...', pause:8000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'This energy that you have chosen not to waste... is becoming the life you are building...', pause:10000},
+      {text:'Breathe in... and send more energy to your vision...', pause:4000, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'Exhale... and feel the vision strengthen...', pause:7000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Hold this feeling... this is what transmutation feels like...', pause:10000},
+    ]
+  },
+  {
+    icon:'🌙', name:'Phase 5 — Integration', color:'#8899FF',
+    steps:[
+      {text:'Begin to let the vision gently fade...', pause:6000},
+      {text:'Let the light soften... returning to a gentle warmth throughout your whole body...', pause:8000},
+      {text:'Feel the stillness... the quiet power inside you...', pause:8000},
+      {text:'This energy is now yours... it has not been wasted... it has been invested...', pause:9000},
+      {text:'Take a slow deep breath in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'And release...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Once more... breathe in...', pause:3500, breath:'inhale', breathLabel:'INHALE', breathDur:4},
+      {text:'And let go...', pause:5000, breath:'exhale', breathLabel:'EXHALE', breathDur:6},
+      {text:'Begin to bring your awareness back to the room around you...', pause:7000},
+      {text:'Gently wiggle your fingers... your toes...', pause:6000},
+      {text:'When you are ready... slowly open your eyes...', pause:8000},
+      {text:'Well done. You chose to transmute rather than drain. That is the work. Carry this stillness with you.', pause:10000},
+    ]
   }
-  const text = `Welcome. Find a comfortable seated position and close your eyes.
-Phase one. Grounding. Take three deep breaths. Inhale for four counts. Hold for four. Exhale for eight. Feel your body settle. You are safe. You are still.
-Phase two. Acknowledge the energy. Bring your awareness to your sacral centre just below your navel. Notice any warmth or tension without judgement. This is raw life force. Power waiting to be directed.
-Phase three. The upward draw. On each inhale visualise a golden light rising from the base of your spine. With each breath it climbs higher through your heart, your throat, your third eye. On the exhale let it radiate from your crown as pure white light.
-Phase four. Transmutation. Set your intention. What will you create with this energy? Hold that vision at your third eye. Pour the rising energy directly into it. Feel it charge with life.
-Phase five. Integration. Let the visualisation fade. Rest in stillness. Feel the quiet power in your body. This energy is now yours. Stored not wasted. Take three deep breaths. Slowly open your eyes.`;
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.8; u.pitch = 0.9;
-  u.onend = () => { medPlaying = false; btn.textContent = '▶ Begin Guided Session'; };
-  window.speechSynthesis.speak(u);
-  medPlaying = true; btn.textContent = '⏹ Stop Meditation';
+];
+
+let medCtx = null, medGain = null, medRunning = false, medStopFlag = false;
+let medPhaseIdx = 0, medStepIdx = 0, medTimers = [];
+
+function medClearTimers() {
+  medTimers.forEach(t => clearTimeout(t));
+  medTimers = [];
+}
+
+function medTone(freq, duration, vol) {
+  try {
+    if(!medCtx) medCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = medCtx.createOscillator();
+    const gain = medCtx.createGain();
+    osc.connect(gain); gain.connect(medCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, medCtx.currentTime);
+    gain.gain.setValueAtTime(0, medCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, medCtx.currentTime + 0.5);
+    gain.gain.linearRampToValueAtTime(0, medCtx.currentTime + duration - 0.3);
+    osc.start(medCtx.currentTime);
+    osc.stop(medCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function medBowl() {
+  // Tibetan bowl-like tone
+  medTone(432, 6, 0.06);
+  setTimeout(() => medTone(528, 5, 0.04), 500);
+  setTimeout(() => medTone(396, 4, 0.03), 1200);
+}
+
+function medAmbient() {
+  // Gentle drone
+  if(!medRunning) return;
+  medTone(128, 8, 0.025);
+  setTimeout(() => { if(medRunning) medTone(192, 8, 0.02); }, 2000);
+  const t = setTimeout(() => { if(medRunning) medAmbient(); }, 7000);
+  medTimers.push(t);
+}
+
+function medSetBreath(type, label, dur) {
+  const ring = document.getElementById('breath-ring');
+  const inner = document.getElementById('breath-ring-inner');
+  const lbl = document.getElementById('breath-label');
+  if(!ring) return;
+  ring.className = type || '';
+  if(lbl) lbl.textContent = label || '';
+  if(type === 'inhale') {
+    ring.style.transform = 'scale(1.18)';
+    ring.style.borderColor = '#9977EE';
+    if(inner) inner.style.transform = 'scale(1.3)';
+    if(inner) inner.style.background = 'rgba(150,100,255,0.4)';
+  } else if(type === 'hold') {
+    ring.style.transform = 'scale(1.18)';
+    ring.style.borderColor = '#CC88FF';
+    if(inner) inner.style.transform = 'scale(1.3)';
+  } else if(type === 'exhale') {
+    ring.style.transform = 'scale(1)';
+    ring.style.borderColor = '#6644FF';
+    if(inner) inner.style.transform = 'scale(1)';
+    if(inner) inner.style.background = 'rgba(102,68,255,0.3)';
+  } else {
+    ring.style.transform = 'scale(1)';
+    ring.style.borderColor = '#6644FF';
+    if(inner) inner.style.transform = 'scale(1)';
+  }
+}
+
+function medSetText(text) {
+  const el = document.getElementById('med-text');
+  if(!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = text;
+    el.style.opacity = '1';
+    el.classList.remove('med-text-animate');
+    void el.offsetWidth;
+    el.classList.add('med-text-animate');
+  }, 400);
+}
+
+function medUpdateDots(phaseIdx) {
+  const container = document.getElementById('med-dots');
+  if(!container) return;
+  container.innerHTML = MED_PHASES.map((_, i) =>
+    `<div class="med-dot${i === phaseIdx ? ' on' : i < phaseIdx ? ' done' : ''}"></div>`
+  ).join('');
+}
+
+function medUpdateHeader(phase) {
+  const icon = document.getElementById('med-phase-icon');
+  const name = document.getElementById('med-phase-name');
+  const dur = document.getElementById('med-duration');
+  if(icon) icon.textContent = phase.icon;
+  if(name) { name.textContent = phase.name; name.style.color = phase.color; }
+  if(dur) dur.textContent = 'Phase ' + (medPhaseIdx + 1) + ' of ' + MED_PHASES.length;
+}
+
+function medRunStep(phaseIdx, stepIdx) {
+  if(medStopFlag || phaseIdx >= MED_PHASES.length) {
+    medFinish(); return;
+  }
+  const phase = MED_PHASES[phaseIdx];
+  if(stepIdx >= phase.steps.length) {
+    // Next phase
+    medPhaseIdx = phaseIdx + 1;
+    medStepIdx = 0;
+    if(medPhaseIdx < MED_PHASES.length) {
+      medBowl();
+      medUpdateDots(medPhaseIdx);
+      medUpdateHeader(MED_PHASES[medPhaseIdx]);
+      const t = setTimeout(() => { if(!medStopFlag) medRunStep(medPhaseIdx, 0); }, 3000);
+      medTimers.push(t);
+    } else {
+      medFinish();
+    }
+    return;
+  }
+  const step = phase.steps[stepIdx];
+  medSetText(step.text);
+  if(step.breath) {
+    medSetBreath(step.breath, step.breathLabel, step.breathDur);
+  } else {
+    medSetBreath(null, '', 0);
+  }
+  const status = document.getElementById('med-status');
+  if(status) status.textContent = 'Step ' + (stepIdx + 1) + ' of ' + phase.steps.length;
+  const t = setTimeout(() => {
+    if(!medStopFlag) medRunStep(phaseIdx, stepIdx + 1);
+  }, step.pause);
+  medTimers.push(t);
+}
+
+function medStart() {
+  if(medRunning) return;
+  medRunning = true; medStopFlag = false;
+  medPhaseIdx = 0; medStepIdx = 0;
+  const btn = document.getElementById('med-btn');
+  if(btn) btn.textContent = '⏸ Running...';
+  medBowl();
+  medUpdateDots(0);
+  medUpdateHeader(MED_PHASES[0]);
+  setTimeout(() => medAmbient(), 2000);
+  const t = setTimeout(() => { if(!medStopFlag) medRunStep(0, 0); }, 2000);
+  medTimers.push(t);
+}
+
+function medStop() {
+  medStopFlag = true; medRunning = false;
+  medClearTimers();
+  try { if(medCtx) { medCtx.close(); medCtx = null; } } catch(e){}
+  const btn = document.getElementById('med-btn');
+  if(btn) btn.textContent = '▶ Begin';
+  const icon = document.getElementById('med-phase-icon');
+  const name = document.getElementById('med-phase-name');
+  const dur = document.getElementById('med-duration');
+  const txt = document.getElementById('med-text');
+  const status = document.getElementById('med-status');
+  if(icon) icon.textContent = '🧘';
+  if(name) { name.textContent = 'Sexual Transmutation Meditation'; name.style.color = '#C8A8FF'; }
+  if(dur) dur.textContent = '~15 minutes · 5 phases';
+  if(txt) txt.textContent = '';
+  if(status) status.textContent = 'Tap Begin when you are ready';
+  medSetBreath(null, 'BEGIN', 0);
+  document.getElementById('breath-label').textContent = 'TAP
+BEGIN';
+  const dots = document.getElementById('med-dots');
+  if(dots) dots.innerHTML = '';
+}
+
+function medFinish() {
+  medRunning = false;
+  medClearTimers();
+  try { if(medCtx) { medCtx.close(); medCtx = null; } } catch(e){}
+  const btn = document.getElementById('med-btn');
+  if(btn) btn.textContent = '▶ Begin again';
+  const status = document.getElementById('med-status');
+  if(status) status.textContent = 'Session complete. Well done.';
+  medSetBreath(null, '🙏', 0);
+  medTone(432, 8, 0.07);
 }
 
 // ===================== INIT =====================
@@ -1141,7 +1421,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // ---- MEDITATION ----
-  document.getElementById('med-btn').addEventListener('click', toggleMed);
+  document.getElementById('med-btn').addEventListener('click', function() {
+    if(medRunning) { medStop(); } else { medStart(); }
+  });
+  document.getElementById('med-stop').addEventListener('click', medStop);
 
   // ---- MILESTONE ----
   document.getElementById('ms-close').addEventListener('click', function() {
