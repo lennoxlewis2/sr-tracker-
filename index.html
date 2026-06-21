@@ -2441,21 +2441,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // ---- Android back button handler ----
-// Push a state on load so the first back press is intercepted
 history.pushState({page:'home'}, '');
 
 window.addEventListener('popstate', function(e) {
   const activeTab = document.querySelector('.tab.on');
   const activeTabId = activeTab ? activeTab.dataset.tab : 'home';
 
-  // If already on home tab, do nothing — let the browser handle it (exits app)
-  if(activeTabId === 'home') {
+  // Check if we're on checkin tab or if checkin section is visible
+  const checkinSec = document.getElementById('s-checkin');
+  const checkinVisible = checkinSec && checkinSec.classList.contains('on');
+
+  // Check if weekly form is showing within checkin
+  const weeklyForm = document.getElementById('weekly-form');
+  const weeklyVisible = weeklyForm && weeklyForm.style.display !== 'none' && weeklyForm.style.display !== '';
+
+  if(weeklyVisible) {
+    // Back from weekly review goes to daily form
+    const df = document.getElementById('daily-form');
+    if(df) df.style.display = '';
+    if(weeklyForm) weeklyForm.style.display = 'none';
+    history.pushState({page:'home'}, '');
     return;
   }
 
-  // Otherwise go to home and push state again so next back is also intercepted
-  goTab('home');
-  history.pushState({page:'home'}, '');
+  if(checkinVisible || activeTabId !== 'home') {
+    // Go back to home tab
+    goTab('home');
+    history.pushState({page:'home'}, '');
+    return;
+  }
+
+  // Already on home — let browser exit the app
 });
 </script>
 </body>
