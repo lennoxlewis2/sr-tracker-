@@ -1194,59 +1194,77 @@ function medUpdateHeader(phase) {
   if(dur) dur.textContent = 'Phase ' + (medPhaseIdx + 1) + ' of ' + MED_PHASES.length;
 }
 
-// ---- Voice selection ----
-let medVoice = null;
-function medPickVoice() {
-  if(medVoice) return;
-  const voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-  // Priority order: best soothing voices on Android/Chrome
-  const preferred = [
-    'Google UK English Male',
-    'Google UK English Female',
-    'Google US English',
-    'Microsoft David - English (United States)',
-    'Microsoft Mark - English (United States)',
-    'en-GB',
-    'en-US',
-  ];
-  for(const name of preferred) {
-    const v = voices.find(v => v.name.includes(name) || v.lang === name);
-    if(v) { medVoice = v; break; }
-  }
-  // Fallback: any English voice
-  if(!medVoice) {
-    medVoice = voices.find(v => v.lang && v.lang.startsWith('en')) || voices[0] || null;
-  }
+// ---- Puter.js Voice (free ElevenLabs access, no API key needed) ----
+const PUTER_VOICE = 'UmQN7jS1Ee8B1czsUtQh';
+let elCurrentAudio = null;
+let puterReady = false;
+
+function ensurePuter(cb) {
+  if(typeof puter !== 'undefined' && puter.ai) { puterReady = true; cb(); return; }
+  // Load puter.js dynamically
+  const script = document.createElement('script');
+  script.src = 'https://js.puter.com/v2/';
+  script.onload = () => {
+    // Wait a moment for puter to initialise
+    setTimeout(() => { puterReady = true; cb(); }, 800);
+  };
+  script.onerror = () => cb(); // fallback will handle it
+  document.head.appendChild(script);
 }
 
-function medSpeak(text, onDone) {
+function elSpeak(text, onDone, audioKey) {
+  if(medStopFlag) { if(onDone) onDone(); return; }
+  ensurePuter(() => {
+    if(medStopFlag) { if(onDone) onDone(); return; }
+    if(!puterReady || typeof puter === 'undefined' || !puter.ai) {
+      elSpeakFallback(text, onDone); return;
+    }
+    try {
+      puter.ai.txt2speech(text, {
+        provider: 'elevenlabs',
+        voice: PUTER_VOICE,
+        model: 'eleven_turbo_v2'
+      }).then(audio => {
+        if(medStopFlag) { if(onDone) onDone(); return; }
+        elCurrentAudio = audio;
+        audio.onended = () => { elCurrentAudio = null; if(onDone) onDone(); };
+        audio.onerror = () => { elCurrentAudio = null; elSpeakFallback(text, onDone); };
+        audio.play().catch(() => elSpeakFallback(text, onDone));
+      }).catch(e => {
+        console.warn('Puter TTS error, falling back:', e);
+        elSpeakFallback(text, onDone);
+      });
+    } catch(e) {
+      elSpeakFallback(text, onDone);
+    }
+  });
+}
+
+function elSpeakFallback(text, onDone) {
   if(!window.speechSynthesis || medStopFlag) { if(onDone) onDone(); return; }
   window.speechSynthesis.cancel();
-  medPickVoice();
-  // Split into sentences so pauses feel natural between them
   const sentences = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
-  let idx = 0;
-  function speakNext() {
-    if(medStopFlag || idx >= sentences.length) { if(onDone) onDone(); return; }
-    const sentence = sentences[idx].trim();
-    idx++;
-    if(!sentence) { speakNext(); return; }
-    const u = new SpeechSynthesisUtterance(sentence);
-    if(medVoice) u.voice = medVoice;
-    u.rate = 0.72;      // Very slow and deliberate
-    u.pitch = 0.88;     // Slightly lower = more soothing
-    u.volume = 0.95;
-    // Gap between sentences — the pause that makes it feel guided
-    u.onend = () => {
-      if(medStopFlag) { if(onDone) onDone(); return; }
-      const gap = sentence.endsWith('...') ? 1400 : 900;
-      const t = setTimeout(speakNext, gap);
-      medTimers.push(t);
-    };
-    u.onerror = () => { if(onDone) onDone(); };
-    try { window.speechSynthesis.speak(u); } catch(e) { if(onDone) onDone(); }
+  let i = 0;
+  function next() {
+    if(medStopFlag || i >= sentences.length) { if(onDone) onDone(); return; }
+    const s = sentences[i++].trim();
+    if(!s) { next(); return; }
+    const u = new SpeechSynthesisUtterance(s);
+    u.rate = 0.72; u.pitch = 0.88; u.volume = 0.95;
+    const voices = window.speechSynthesis.getVoices();
+    const v = voices.find(v => v.name.includes('Google UK English Male')) ||
+              voices.find(v => v.name.includes('Google UK English')) ||
+              voices.find(v => v.lang && v.lang.startsWith('en'));
+    if(v) u.voice = v;
+    u.onend = () => { const t = setTimeout(next, 900); medTimers.push(t); };
+    u.onerror = () => next();
+    try { window.speechSynthesis.speak(u); } catch(e) { next(); }
   }
-  speakNext();
+  next();
+}
+
+function medSpeak(text, onDone, audioKey) {
+  elSpeak(text, onDone, audioKey);
 }
 
 function medRunStep(phaseIdx, stepIdx) {
@@ -1305,16 +1323,6 @@ function medStart() {
   const btn = document.getElementById('med-btn');
   if(btn) btn.textContent = '⏸ Running...';
 
-  // Pre-load voices — Chrome needs a trigger to populate them
-  if(window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-    const dummy = new SpeechSynthesisUtterance(' ');
-    dummy.volume = 0;
-    window.speechSynthesis.speak(dummy);
-    // Give voices time to load
-    setTimeout(() => { medPickVoice(); }, 300);
-  }
-
   medBowl();
   medUpdateDots(0);
   medUpdateHeader(MED_PHASES[0]);
@@ -1335,6 +1343,7 @@ function medStart() {
 function medStop() {
   medStopFlag = true; medRunning = false;
   medClearTimers();
+  try { if(elCurrentAudio) { elCurrentAudio.pause(); elCurrentAudio = null; } } catch(e){}
   try { if(window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e){}
   try { if(medCtx) { medCtx.close(); medCtx = null; } } catch(e){}
   const btn = document.getElementById('med-btn');
