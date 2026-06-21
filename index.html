@@ -1316,8 +1316,11 @@ function sendBug() {
     }, 'RJ6SDav9013CMCKbD')
     .then(function() {
       document.getElementById('bug-txt').value = '';
-      toast('Bug report sent! Thank you.');
       if(btn) { btn.textContent = 'Send bug report'; btn.disabled = false; }
+      // Show thank you message
+      const bugSection = document.getElementById('bug-thankyou');
+      if(bugSection) bugSection.style.display = 'block';
+      setTimeout(function() { if(bugSection) bugSection.style.display = 'none'; }, 8000);
     }, function(err) {
       console.error('EmailJS error:', err);
       // Fallback to mailto
