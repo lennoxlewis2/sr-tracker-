@@ -1062,6 +1062,7 @@ function goTab(id) {
   if(id === 'phases') renderPhase();
   if(id === 'stories') { shuffle(stories); storyIdx = 0; renderStory(); }
   if(id === 'transmute') switchTr('pranayama');
+  if(id === 'urge') { document.getElementById('urge-home').style.display='block'; document.getElementById('urge-surf').style.display='none'; document.getElementById('urge-win').style.display='none'; }
 }
 
 // ===================== CHECK-IN =====================
