@@ -263,6 +263,12 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .ws-step{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:14px;color:rgba(255,255,255,0.85);}
   .ws-step:last-child{margin-bottom:0;}
   .ws-step-ic{font-size:20px;flex-shrink:0;}
+
+  .tabs{touch-action:none;}
+  .tab.dragging{opacity:.4;transform:scale(0.95);}
+  .tab.drag-over{background:var(--acl);border-radius:var(--r1);}
+  .tab-reorder-hint{display:none;text-align:center;font-size:10px;color:var(--tt);padding:3px 0;background:var(--sf);border-top:.5px solid var(--bd);}
+  .tab-reorder-hint.show{display:block;}
 </style>
 </head>
 <body>
@@ -2235,6 +2241,169 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+</script>
+
+
+<script>
+// ---- Tab reorder (drag on desktop, long-press drag on mobile) ----
+(function() {
+  var nav = document.querySelector('.tabs');
+  var hint = document.getElementById('reorder-hint');
+  if(!nav) return;
+
+  var dragSrc = null;
+  var longPressTimer = null;
+  var isDragging = false;
+  var startX = 0, startY = 0;
+  var clone = null;
+  var tabs = [];
+
+  function saveOrder() {
+    var order = Array.from(nav.querySelectorAll('.tab')).map(function(t) { return t.dataset.tab; });
+    localStorage.setItem('tab_order', JSON.stringify(order));
+  }
+
+  function loadOrder() {
+    try {
+      var saved = localStorage.getItem('tab_order');
+      if(!saved) return;
+      var order = JSON.parse(saved);
+      var tabEls = Array.from(nav.querySelectorAll('.tab'));
+      var map = {};
+      tabEls.forEach(function(t) { map[t.dataset.tab] = t; });
+      order.forEach(function(id) {
+        if(map[id]) nav.appendChild(map[id]);
+      });
+    } catch(e) {}
+  }
+
+  // Show hint briefly on first visit
+  if(!localStorage.getItem('tab_order_hinted')) {
+    setTimeout(function() {
+      if(hint) hint.classList.add('show');
+      setTimeout(function() {
+        if(hint) hint.classList.remove('show');
+        localStorage.setItem('tab_order_hinted', '1');
+      }, 3000);
+    }, 5000);
+  }
+
+  // ---- Touch drag ----
+  nav.addEventListener('touchstart', function(e) {
+    var tab = e.target.closest('.tab');
+    if(!tab) return;
+    var touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+
+    longPressTimer = setTimeout(function() {
+      isDragging = true;
+      dragSrc = tab;
+      tab.classList.add('dragging');
+      if(hint) { hint.textContent = 'Drag to reorder'; hint.classList.add('show'); }
+
+      // Create visual clone
+      clone = tab.cloneNode(true);
+      clone.style.cssText = 'position:fixed;z-index:9999;opacity:0.85;pointer-events:none;background:var(--ac);color:white;border-radius:8px;padding:4px 8px;font-size:9px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:48px;';
+      clone.style.left = (touch.clientX - 30) + 'px';
+      clone.style.top = (touch.clientY - 40) + 'px';
+      document.body.appendChild(clone);
+
+      if(navigator.vibrate) navigator.vibrate(30);
+    }, 400);
+  }, {passive: true});
+
+  nav.addEventListener('touchmove', function(e) {
+    if(!isDragging) {
+      // Cancel long press if moved
+      var touch = e.touches[0];
+      if(Math.abs(touch.clientX - startX) > 8 || Math.abs(touch.clientY - startY) > 8) {
+        clearTimeout(longPressTimer);
+      }
+      return;
+    }
+    e.preventDefault();
+    var touch = e.touches[0];
+
+    // Move clone
+    if(clone) {
+      clone.style.left = (touch.clientX - 30) + 'px';
+      clone.style.top = (touch.clientY - 40) + 'px';
+    }
+
+    // Find tab under finger
+    var allTabs = Array.from(nav.querySelectorAll('.tab'));
+    allTabs.forEach(function(t) { t.classList.remove('drag-over'); });
+
+    var el = document.elementFromPoint(touch.clientX, touch.clientY);
+    var target = el ? el.closest('.tab') : null;
+    if(target && target !== dragSrc) {
+      target.classList.add('drag-over');
+      // Reorder
+      var tabsList = Array.from(nav.querySelectorAll('.tab'));
+      var srcIdx = tabsList.indexOf(dragSrc);
+      var tgtIdx = tabsList.indexOf(target);
+      if(srcIdx < tgtIdx) {
+        nav.insertBefore(dragSrc, target.nextSibling);
+      } else {
+        nav.insertBefore(dragSrc, target);
+      }
+    }
+  }, {passive: false});
+
+  nav.addEventListener('touchend', function(e) {
+    clearTimeout(longPressTimer);
+    if(!isDragging) return;
+    isDragging = false;
+    if(dragSrc) dragSrc.classList.remove('dragging');
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
+    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
+    clone = null;
+    dragSrc = null;
+    if(hint) { hint.textContent = 'Hold & drag tabs to reorder'; hint.classList.remove('show'); }
+    saveOrder();
+    if(navigator.vibrate) navigator.vibrate(20);
+  }, {passive: true});
+
+  nav.addEventListener('touchcancel', function() {
+    clearTimeout(longPressTimer);
+    isDragging = false;
+    if(dragSrc) dragSrc.classList.remove('dragging');
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
+    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
+    clone = null; dragSrc = null;
+  }, {passive: true});
+
+  // ---- Desktop drag (for testing in browser) ----
+  nav.addEventListener('dragstart', function(e) {
+    dragSrc = e.target.closest('.tab');
+    if(dragSrc) { dragSrc.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+  });
+  nav.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    var target = e.target.closest('.tab');
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('drag-over'); });
+    if(target && target !== dragSrc) {
+      target.classList.add('drag-over');
+      var tabsList = Array.from(nav.querySelectorAll('.tab'));
+      var srcIdx = tabsList.indexOf(dragSrc);
+      var tgtIdx = tabsList.indexOf(target);
+      if(srcIdx < tgtIdx) nav.insertBefore(dragSrc, target.nextSibling);
+      else nav.insertBefore(dragSrc, target);
+    }
+  });
+  nav.addEventListener('dragend', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('dragging'); t.classList.remove('drag-over'); });
+    dragSrc = null;
+    saveOrder();
+  });
+
+  // Make tabs draggable on desktop
+  document.querySelectorAll('.tab').forEach(function(t) { t.setAttribute('draggable', 'true'); });
+
+  // Load saved order on startup
+  loadOrder();
+})();
 </script>
 
 <script>
