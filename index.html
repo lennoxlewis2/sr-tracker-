@@ -419,11 +419,11 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
         <div style="display:flex;align-items:flex-start;gap:10px;">
           <div style="font-size:22px;flex-shrink:0;">🎙️</div>
           <div>
-            <div style="font-size:13px;font-weight:600;color:#C8A8FF;margin-bottom:5px;">One-time voice setup required</div>
-            <div style="font-size:12px;color:#9977CC;line-height:1.6;">This meditation uses a real AI voice. The first time you tap Begin, a free <strong style="color:#C8A8FF;">Puter account</strong> sign-up will appear — it takes 30 seconds and only happens once. After that the voice plays instantly every time, forever.</div>
+            <div style="font-size:13px;font-weight:600;color:#C8A8FF;margin-bottom:5px;">Voice guidance</div>
+            <div style="font-size:12px;color:#9977CC;line-height:1.6;">This meditation is guided by your device's built-in voice. For the best experience on Android, go to <strong style="color:#C8A8FF;">Settings → Accessibility → Text-to-speech</strong> and select <strong style="color:#C8A8FF;">Google Text-to-speech</strong> as your engine. Then tap Begin below.</div>
             <div style="margin-top:10px;display:flex;align-items:center;gap:6px;">
               <div style="width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0;"></div>
-              <span style="font-size:11px;color:#7DCAA0;">Free · No payment needed · One time only</span>
+              <span style="font-size:11px;color:#7DCAA0;">Free · No signup · Works offline · No credits</span>
             </div>
           </div>
         </div>
@@ -567,6 +567,19 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       <textarea id="bug-txt" rows="4" placeholder="Describe the bug or error..." style="margin-bottom:8px"></textarea>
       <button class="btn" id="send-bug" style="margin-top:0">Send bug report</button>
     </div>
+    <div style="margin-bottom:20px;">
+      <div class="lbl">Support the app</div>
+      <div style="background:linear-gradient(135deg,#1A0A0A,#2A0808);border:.5px solid #FF5E5B;border-radius:12px;padding:14px 16px;">
+        <div style="font-size:13px;color:#FFB3B2;line-height:1.7;margin-bottom:12px;">
+          Hey — thank you genuinely for using SR Tracker. 🙏<br><br>
+          I built this because I wanted a real tool for the journey, not just another generic habit app. If it's helped you stay on track, given you clarity, or even just reminded you why you started — that means everything to me.<br><br>
+          The app is free and always will be. But if you'd like to support it and help keep it growing, a coffee goes a long way. 
+        </div>
+        <a href="https://ko-fi.com/lewiscurtissr" target="_blank" style="display:block;background:#FF5E5B;color:white;text-align:center;padding:11px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.02em;">Support on Ko-fi ☕</a>
+        <div style="text-align:center;margin-top:8px;font-size:11px;color:#884444;">Every bit of support is appreciated — Lewis</div>
+      </div>
+    </div>
+
     <p style="font-size:11px;color:var(--tt);text-align:center">SR Tracker · v2.0</p>
   </div>
 </div>
@@ -1208,77 +1221,104 @@ function medUpdateHeader(phase) {
   if(dur) dur.textContent = 'Phase ' + (medPhaseIdx + 1) + ' of ' + MED_PHASES.length;
 }
 
-// ---- Puter.js Voice (free ElevenLabs access, no API key needed) ----
-const PUTER_VOICE = 'UmQN7jS1Ee8B1czsUtQh';
+// ---- Enhanced Web Speech Voice ----
 let elCurrentAudio = null;
-let puterReady = false;
+let medVoice = null;
+let voicesLoaded = false;
 
-function ensurePuter(cb) {
-  if(typeof puter !== 'undefined' && puter.ai) { puterReady = true; cb(); return; }
-  // Load puter.js dynamically
-  const script = document.createElement('script');
-  script.src = 'https://js.puter.com/v2/';
-  script.onload = () => {
-    // Wait a moment for puter to initialise
-    setTimeout(() => { puterReady = true; cb(); }, 800);
+function loadVoices() {
+  if(voicesLoaded) return;
+  if(!window.speechSynthesis) return;
+  const tryLoad = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if(voices.length === 0) return;
+    voicesLoaded = true;
+    // Priority: best soothing voices available
+    const priority = [
+      'Google UK English Male',
+      'Google UK English Female',
+      'Microsoft Ryan Online (Natural) - English (United Kingdom)',
+      'Microsoft George - English (United Kingdom)',
+      'Microsoft David - English (United States)',
+      'Google US English',
+      'en-GB', 'en-US'
+    ];
+    for(const name of priority) {
+      const v = voices.find(v => v.name === name) ||
+                voices.find(v => v.name.includes(name)) ||
+                voices.find(v => v.lang === name);
+      if(v) { medVoice = v; console.log('Voice selected:', v.name); break; }
+    }
+    if(!medVoice) medVoice = voices.find(v => v.lang && v.lang.startsWith('en')) || voices[0];
   };
-  script.onerror = () => cb(); // fallback will handle it
-  document.head.appendChild(script);
+  tryLoad();
+  if(!voicesLoaded) {
+    window.speechSynthesis.onvoiceschanged = tryLoad;
+    setTimeout(tryLoad, 1000);
+  }
 }
 
-function elSpeak(text, onDone, audioKey) {
-  if(medStopFlag) { if(onDone) onDone(); return; }
-  ensurePuter(() => {
-    if(medStopFlag) { if(onDone) onDone(); return; }
-    if(!puterReady || typeof puter === 'undefined' || !puter.ai) {
-      elSpeakFallback(text, onDone); return;
-    }
-    try {
-      puter.ai.txt2speech(text, {
-        provider: 'elevenlabs',
-        voice: PUTER_VOICE,
-        model: 'eleven_turbo_v2'
-      }).then(audio => {
-        if(medStopFlag) { if(onDone) onDone(); return; }
-        elCurrentAudio = audio;
-        audio.onended = () => { elCurrentAudio = null; if(onDone) onDone(); };
-        audio.onerror = () => { elCurrentAudio = null; elSpeakFallback(text, onDone); };
-        audio.play().catch(() => elSpeakFallback(text, onDone));
-      }).catch(e => {
-        console.warn('Puter TTS error, falling back:', e);
-        elSpeakFallback(text, onDone);
-      });
-    } catch(e) {
-      elSpeakFallback(text, onDone);
-    }
-  });
+// Play a soft sine tone for atmosphere
+function softTone(freq, duration, vol) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.8);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration - 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+    setTimeout(() => { try { ctx.close(); } catch(e){} }, (duration + 1) * 1000);
+  } catch(e) {}
 }
 
-function elSpeakFallback(text, onDone) {
-  if(!window.speechSynthesis || medStopFlag) { if(onDone) onDone(); return; }
+function speakSentence(text, onDone) {
+  if(medStopFlag || !window.speechSynthesis) { if(onDone) onDone(); return; }
   window.speechSynthesis.cancel();
-  const sentences = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
+  const u = new SpeechSynthesisUtterance(text);
+  if(medVoice) u.voice = medVoice;
+  u.rate = 0.68;
+  u.pitch = 0.85;
+  u.volume = 1.0;
+  let done = false;
+  const finish = () => { if(done) return; done = true; if(onDone) onDone(); };
+  u.onend = finish;
+  u.onerror = finish;
+  // Failsafe in case onend doesn't fire (known Chrome bug)
+  const wordCount = text.split(' ').length;
+  const estDur = Math.max(3000, wordCount * 650 / 0.68);
+  const failsafe = setTimeout(finish, estDur + 3000);
+  medTimers.push(failsafe);
+  try { window.speechSynthesis.speak(u); } catch(e) { finish(); }
+}
+
+function elSpeak(text, onDone) {
+  if(medStopFlag) { if(onDone) onDone(); return; }
+  loadVoices();
+  // Split on ... and sentence endings for natural pausing
+  const parts = text.split(/(?<=\.\.\.)|(?<=[.!?])\s+/).map(s => s.trim()).filter(Boolean);
+  if(parts.length === 0) { if(onDone) onDone(); return; }
   let i = 0;
   function next() {
-    if(medStopFlag || i >= sentences.length) { if(onDone) onDone(); return; }
-    const s = sentences[i++].trim();
-    if(!s) { next(); return; }
-    const u = new SpeechSynthesisUtterance(s);
-    u.rate = 0.72; u.pitch = 0.88; u.volume = 0.95;
-    const voices = window.speechSynthesis.getVoices();
-    const v = voices.find(v => v.name.includes('Google UK English Male')) ||
-              voices.find(v => v.name.includes('Google UK English')) ||
-              voices.find(v => v.lang && v.lang.startsWith('en'));
-    if(v) u.voice = v;
-    u.onend = () => { const t = setTimeout(next, 900); medTimers.push(t); };
-    u.onerror = () => next();
-    try { window.speechSynthesis.speak(u); } catch(e) { next(); }
+    if(medStopFlag || i >= parts.length) { if(onDone) onDone(); return; }
+    const part = parts[i++];
+    speakSentence(part, () => {
+      if(medStopFlag) { if(onDone) onDone(); return; }
+      // Natural pause after each phrase — longer for ellipsis
+      const pause = part.endsWith('...') ? 1800 : 1100;
+      const t = setTimeout(next, pause);
+      medTimers.push(t);
+    });
   }
   next();
 }
 
 function medSpeak(text, onDone, audioKey) {
-  elSpeak(text, onDone, audioKey);
+  elSpeak(text, onDone);
 }
 
 function medRunStep(phaseIdx, stepIdx) {
@@ -1337,7 +1377,9 @@ function medStart() {
   const btn = document.getElementById('med-btn');
   if(btn) btn.textContent = '⏸ Running...';
 
+  loadVoices();
   medBowl();
+  softTone(174, 8, 0.04);
   medUpdateDots(0);
   medUpdateHeader(MED_PHASES[0]);
   setTimeout(() => medAmbient(), 3000);
@@ -1357,6 +1399,7 @@ function medStart() {
 function medStop() {
   medStopFlag = true; medRunning = false;
   medClearTimers();
+  try { if(window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e){}
   try { if(elCurrentAudio) { elCurrentAudio.pause(); elCurrentAudio = null; } } catch(e){}
   try { if(window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e){}
   try { if(medCtx) { medCtx.close(); medCtx = null; } } catch(e){}
