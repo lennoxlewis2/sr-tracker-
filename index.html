@@ -36,7 +36,9 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;border:none;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;color:var(--tt);font-size:9px;font-weight:500;}
 .tab.on{color:var(--ac);}
 .tab-ic{font-size:19px;line-height:1;}
-.sec{display:none;}.sec.on{display:block;}
+.sec{display:none;opacity:0;transform:translateY(6px);transition:opacity .18s ease,transform .18s ease;}
+  .sec.on{display:block;animation:secFadeIn .2s ease forwards;}
+  @keyframes secFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .card{background:var(--sf);border:.5px solid var(--bd);border-radius:var(--r3);padding:16px;margin-bottom:12px;}
 .lbl{font-size:11px;font-weight:600;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
 /* Streak card */
@@ -273,6 +275,15 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .qmood-btn:active,.qmood-btn.qon{background:var(--ac);border-color:var(--ac4);color:white;transform:scale(1.08);}
   .quick-checkin-card::-webkit-scrollbar{display:none;}
   #quick-mood-row::-webkit-scrollbar{display:none;}
+
+  @keyframes countUp{from{opacity:0;transform:scale(0.7);}to{opacity:1;transform:scale(1);}}
+  .snum-animate{animation:countUp .5s cubic-bezier(.34,1.56,.64,1) forwards;}
+  .aura-pulse{animation:auraPulse 3s ease-in-out infinite;}
+  @keyframes auraPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(127,119,221,0.4));}50%{filter:drop-shadow(0 0 20px rgba(127,119,221,0.7));}}
+
+  .btn,.btn-g,.urge-sos-btn,.ws-btn,.tab,.utool-btn,.qmood-btn,.mbtn{transition:transform .12s cubic-bezier(.34,1.56,.64,1),opacity .12s;}
+  .btn:active,.btn-g:active,.urge-sos-btn:active,.ws-btn:active,.tab:active,.utool-btn:active,.qmood-btn:active,.mbtn:active{transform:scale(0.94);opacity:.85;}
+  .card{transition:transform .15s ease;}
 </style>
 </head>
 <body>
@@ -301,6 +312,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   <div style="flex:1">
     <h1>The Transmute App</h1>
     <div class="hdr-date" id="hdr-date"></div>
+          <div id="hdr-greeting" style="font-size:11px;color:var(--ac2);font-weight:500;display:none;"></div>
   </div>
   <button class="cogbtn" id="cog">⚙️</button>
 </div>
@@ -312,7 +324,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
     <div class="card">
       <div class="streak-block">
         <div class="streak-left">
-          <div class="aura-wrap">
+          <div class="aura-wrap aura-pulse">
             <svg class="aura-svg" viewBox="0 0 120 120" width="120" height="120">
               <circle class="aura-bg" cx="60" cy="60" r="52"/>
               <circle class="aura-ring" id="ar1" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
@@ -344,7 +356,13 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
     </div>
     <div class="card">
       <div class="lbl">Latest check-in</div>
-      <div id="latest" style="font-size:13px;color:var(--ts);">No entries yet. Do your first check-in.</div>
+      <div id="latest">
+          <div style="text-align:center;padding:12px 0;">
+            <div style="font-size:28px;margin-bottom:8px;">✏️</div>
+            <div style="font-size:13px;font-weight:600;color:var(--ts);margin-bottom:4px;">No check-ins yet</div>
+            <div style="font-size:12px;color:var(--tt);line-height:1.5;">Tap the check-in card below<br>to log your first entry</div>
+          </div>
+        </div>
     </div>
 
     <!-- QUICK CHECK-IN CARD on home screen -->
@@ -796,6 +814,19 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 </nav>
 
 <!-- end app -->
+<!-- NAME PROMPT MODAL -->
+<div id="name-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:800;align-items:center;justify-content:center;padding:24px;display:none;">
+  <div style="background:#1A1A2A;border:.5px solid var(--ac2);border-radius:24px;padding:28px 24px;width:100%;max-width:320px;text-align:center;">
+    <div style="font-size:44px;margin-bottom:12px;">👋</div>
+    <div style="font-size:20px;font-weight:700;color:var(--tx);margin-bottom:8px;">Welcome to The Transmute App</div>
+    <div style="font-size:14px;color:var(--ts);margin-bottom:24px;line-height:1.6;">What should we call you?</div>
+    <input id="name-input" type="text" placeholder="Your name" maxlength="20"
+      style="width:100%;padding:13px 16px;background:var(--bg);border:.5px solid var(--bds);border-radius:12px;font-size:16px;color:var(--tx);font-family:'Inter',sans-serif;margin-bottom:14px;outline:none;text-align:center;" />
+    <button id="name-save" style="width:100%;padding:14px;background:var(--ac);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;-webkit-appearance:none;margin-bottom:10px;">Let's go 🔥</button>
+    <button id="name-skip" style="background:transparent;border:none;color:var(--ts);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;padding:6px;">Skip for now</button>
+  </div>
+</div>
+
 
 <!-- SETTINGS -->
 <div class="s-overlay" id="s-overlay">
@@ -1126,7 +1157,24 @@ function checkMilestone(n) {
 function updateHome() {
   const n = calcStreak();
   if(n > S.best) { S.best = n; save(); }
-  document.getElementById('snum').textContent = n;
+  // Animated streak counter
+  const snumEl = document.getElementById('snum');
+  const oldVal = parseInt(snumEl.textContent) || 0;
+  if(oldVal !== n) {
+    const duration = Math.min(1200, n * 40);
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      snumEl.textContent = Math.round(oldVal + (n - oldVal) * eased);
+      if(progress < 1) requestAnimationFrame(tick);
+      else { snumEl.textContent = n; snumEl.classList.add('snum-animate'); setTimeout(()=>snumEl.classList.remove('snum-animate'),500); }
+    };
+    requestAnimationFrame(tick);
+  } else {
+    snumEl.textContent = n;
+  }
   document.getElementById('m-best').textContent = S.best;
   document.getElementById('m-entries').textContent = S.entries.length;
   updateAura(n); updateFlame(n);
@@ -1135,6 +1183,7 @@ function updateHome() {
   pbEl.textContent = (b.icon ? b.icon + ' ' : '') + b.label;
   pbEl.className = 'ph-badge ' + b.cls;
   checkMilestone(n);
+  updateGreeting();
   const daily = S.entries.filter(e => e.type === 'daily');
   if(daily.length) {
     const avgE = Math.round(daily.reduce((a,e) => a + e.energy, 0) / daily.length);
@@ -1160,6 +1209,7 @@ function goTab(id) {
   document.getElementById('s-' + id).classList.add('on');
   document.querySelector('.tab[data-tab="' + id + '"]').classList.add('on');
   document.getElementById('scroll').scrollTop = 0;
+  if(navigator.vibrate) navigator.vibrate(6);
   if(id === 'history') renderHistory('all');
   if(id === 'phases') renderPhase();
   if(id === 'stories') { shuffle(stories); storyIdx = 0; renderStory(); }
@@ -1937,6 +1987,38 @@ function quickMood(btn) {
   setTimeout(function() { goTab('checkin'); }, 300);
 }
 
+
+// ---- Personalisation ----
+function getUserName() { return localStorage.getItem('user_name') || ''; }
+
+function updateGreeting() {
+  const name = getUserName();
+  const el = document.getElementById('hdr-greeting');
+  if(!el) return;
+  if(name) {
+    const h = new Date().getHours();
+    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    el.textContent = greet + ', ' + name;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function showNameModal() {
+  const modal = document.getElementById('name-modal');
+  if(modal) { modal.style.display = 'flex'; document.getElementById('name-input').focus(); }
+}
+
+function saveUserName() {
+  const val = document.getElementById('name-input').value.trim();
+  if(val) {
+    localStorage.setItem('user_name', val);
+    updateGreeting();
+  }
+  document.getElementById('name-modal').style.display = 'none';
+}
+
 // ===================== INIT =====================
 document.addEventListener('DOMContentLoaded', function() {
   // Date
@@ -2086,6 +2168,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ---- MILESTONE ----
   // ---- URGE SURF ----
+  // ---- Name modal ----
+  const nameSaveBtn = document.getElementById('name-save');
+  const nameSkipBtn = document.getElementById('name-skip');
+  const nameInput = document.getElementById('name-input');
+  if(nameSaveBtn) nameSaveBtn.addEventListener('click', saveUserName);
+  if(nameSkipBtn) nameSkipBtn.addEventListener('click', function() {
+    localStorage.setItem('user_name', '');
+    document.getElementById('name-modal').style.display = 'none';
+  });
+  if(nameInput) nameInput.addEventListener('keydown', function(e) {
+    if(e.key === 'Enter') saveUserName();
+  });
+  // Show name modal on first visit (after welcome screen dismissed)
+  if(!localStorage.getItem('user_name') && !localStorage.getItem('user_name_asked')) {
+    localStorage.setItem('user_name_asked', '1');
+    setTimeout(function() {
+      // Only show if welcome screen is hidden
+      const ws = document.getElementById('ws');
+      if(!ws || ws.classList.contains('hidden') || localStorage.getItem('ws_seen')) {
+        showNameModal();
+      } else {
+        // Wait for welcome screen to be dismissed
+        const checkWS = setInterval(function() {
+          if(!ws || ws.classList.contains('hidden')) {
+            clearInterval(checkWS);
+            setTimeout(showNameModal, 500);
+          }
+        }, 500);
+      }
+    }, 2000);
+  }
+  updateGreeting();
+
   document.getElementById('sos-btn').addEventListener('click', uStart);
 
   // Breath tool
