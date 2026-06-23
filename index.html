@@ -71,7 +71,6 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 /* Quote */
 .q-side{flex:1;border-left:2px solid var(--ac4);padding-left:12px;}
 .q-text{font-size:12px;color:var(--ac2);line-height:1.6;font-style:italic;min-height:56px;}
-}
 .q-nav{display:flex;align-items:center;gap:4px;margin-top:8px;}
 .qbtn{border:none;background:transparent;cursor:pointer;color:var(--ts);font-size:18px;padding:2px 4px;}
 .qdots{display:flex;gap:3px;flex:1;}
@@ -85,7 +84,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 /* Check-in */
 .mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px;}
 .mbtn{border:.5px solid var(--bds);background:var(--bg);border-radius:var(--r1);padding:7px 2px;cursor:pointer;text-align:center;font-size:10px;color:var(--ts);font-family:'Inter',sans-serif;font-weight:500;-webkit-appearance:none;}
-.mbtn.on{border-color:var(--ac4);background:var(--acl);color:var(--acd);}
+.mbtn.on{border-color:var(--ac4);background:var(--acl);color:var(--ac);}
 .mic{font-size:17px;display:block;margin-bottom:2px;}
 .sl-row{margin-bottom:12px;}
 .sl-row:last-child{margin-bottom:0;}
@@ -117,7 +116,6 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 .ic{background:var(--acl);border:.5px solid var(--ac2);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
 .ic-t{font-size:11px;font-weight:700;color:var(--ac2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
 .ic-b{font-size:13px;color:var(--ac2);line-height:1.5;}
-.ic-b{color:var(--ac2);}}
 .bars{margin-top:4px;}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px;}
 .bar-lbl{width:70px;color:var(--ts);flex-shrink:0;font-weight:500;}
@@ -312,7 +310,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   <div style="flex:1">
     <h1>The Transmute App</h1>
     <div class="hdr-date" id="hdr-date"></div>
-          <div id="hdr-greeting" style="font-size:11px;color:var(--ac2);font-weight:500;display:none;"></div>
+          <div id="hdr-greeting" style="font-size:11px;color:var(--ac2);font-weight:500;display:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:200px;"></div>
   </div>
   <button class="cogbtn" id="cog">⚙️</button>
 </div>
@@ -855,7 +853,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       </div>
     </div>
     <div style="margin-bottom:20px">
-      <div class="lbl">Language</div>
+      <div class="lbl">Language <span style="font-size:9px;color:var(--tt);font-weight:400;text-transform:none;letter-spacing:0">(coming soon)</span></div>
       <div class="lang-grid">
         <button class="lang-btn" data-lang="en">🇬🇧 English</button>
         <button class="lang-btn" data-lang="es">🇪🇸 Español</button>
@@ -894,7 +892,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       </div>
     </div>
 
-    <p style="font-size:11px;color:var(--tt);text-align:center">The Transmute App · v2.0</p>
+    <p style="font-size:11px;color:var(--tt);text-align:center">The Transmute App · v3.0</p>
   </div>
 </div>
 
@@ -999,6 +997,8 @@ if(S.streak !== undefined && !S.startDate && S.streak > 0) {
   const d = new Date(); d.setDate(d.getDate() - S.streak);
   S.startDate = d.toISOString().split('T')[0]; delete S.streak;
 }
+// Always clear transient mood on load — never persist across sessions
+S.mood = null;
 function save() { try { localStorage.setItem('sr_v3', JSON.stringify(S)); } catch(e){} }
 
 let curTheme = localStorage.getItem('sr_theme') || 'purple';
@@ -1014,8 +1014,10 @@ function toast(msg) {
 
 function calcStreak() {
   if(!S.startDate) return 0;
-  const a = new Date(S.startDate), b = new Date();
-  a.setHours(0,0,0,0); b.setHours(0,0,0,0);
+  // Parse as local midnight to avoid UTC-offset day-off-by-one on western timezones
+  const parts = S.startDate.split('-');
+  const a = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  const b = new Date(); b.setHours(0,0,0,0);
   return Math.max(0, Math.floor((b - a) / 86400000));
 }
 
@@ -1188,7 +1190,7 @@ function updateHome() {
   if(daily.length) {
     const avgE = Math.round(daily.reduce((a,e) => a + e.energy, 0) / daily.length);
     document.getElementById('m-energy').textContent = avgE;
-    const last = S.entries[S.entries.length - 1];
+    const last = daily[daily.length - 1];
     document.getElementById('latest').innerHTML =
       '<strong>' + (last.mood||'–') + '</strong>' +
       (last.energy ? ' · energy ' + last.energy + '/10 · clarity ' + last.clarity + '/10' : '') +
@@ -1198,16 +1200,21 @@ function updateHome() {
       ? 'Running since ' + new Date(S.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) + '. Do your first check-in.'
       : 'Set your start date below to begin tracking.';
   }
-  const lastRD = S.reviews.length ? S.reviews[S.reviews.length-1].day : 0;
-  document.getElementById('wprompt').style.display = (n > 0 && n - lastRD >= 7) ? 'block' : 'none';
+  const lastReview = S.reviews.length ? S.reviews[S.reviews.length-1] : null;
+  const daysSinceReview = lastReview
+    ? Math.floor((Date.now() - new Date(lastReview.date).getTime()) / 86400000)
+    : (n > 0 ? 999 : 0);
+  document.getElementById('wprompt').style.display = (n > 0 && daysSinceReview >= 7) ? 'block' : 'none';
 }
 
 // ===================== TABS =====================
 function goTab(id) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('s-' + id).classList.add('on');
-  document.querySelector('.tab[data-tab="' + id + '"]').classList.add('on');
+  const sec = document.getElementById('s-' + id);
+  if(sec) sec.classList.add('on');
+  const tabBtn = document.querySelector('.tab[data-tab="' + id + '"]');
+  if(tabBtn) tabBtn.classList.add('on');
   document.getElementById('scroll').scrollTop = 0;
   if(navigator.vibrate) navigator.vibrate(6);
   if(id === 'history') renderHistory('all');
@@ -1253,6 +1260,9 @@ function saveReview() {
 }
 
 // ===================== HISTORY =====================
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 function renderHistory(f) {
   ['all','daily','weekly'].forEach(x => {
     const el = document.getElementById('hf-'+x);
@@ -1264,8 +1274,8 @@ function renderHistory(f) {
   if(!list.length) { el.innerHTML = '<p>No entries of this type yet.</p>'; return; }
   el.innerHTML = [...list].reverse().map(e => {
     const dt = new Date(e.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + ' · day ' + e.day;
-    if(e.type === 'weekly') return `<div class="wk-card"><div class="e-date">${dt} · <span style="color:var(--amb8);font-weight:600">Weekly review</span></div>${e.wentWell?'<div class="e-note"><b>Went well:</b> '+e.wentWell+'</div>':''}${e.hardest?'<div class="e-note"><b>Hardest:</b> '+e.hardest+'</div>':''}${e.intention?'<div class="e-note"><b>Intention:</b> '+e.intention+'</div>':''}</div>`;
-    return `<div class="entry"><div class="e-date">${dt}</div><div class="e-mood">${e.mood} · E${e.energy} C${e.clarity} U${e.urge}</div>${e.triggers&&e.triggers.length?'<div class="e-note">Triggers: '+e.triggers.join(', ')+'</div>':''}${e.note?'<div class="e-note">'+e.note+'</div>':''}</div>`;
+    if(e.type === 'weekly') return `<div class="wk-card"><div class="e-date">${dt} · <span style="color:var(--amb8);font-weight:600">Weekly review</span></div>${e.wentWell?'<div class="e-note"><b>Went well:</b> '+escHtml(e.wentWell)+'</div>':''}${e.hardest?'<div class="e-note"><b>Hardest:</b> '+escHtml(e.hardest)+'</div>':''}${e.intention?'<div class="e-note"><b>Intention:</b> '+escHtml(e.intention)+'</div>':''}</div>`;
+    return `<div class="entry"><div class="e-date">${dt}</div><div class="e-mood">${escHtml(e.mood)} · E${e.energy} C${e.clarity} U${e.urge}</div>${e.triggers&&e.triggers.length?'<div class="e-note">Triggers: '+e.triggers.map(escHtml).join(', ')+'</div>':''}${e.note?'<div class="e-note">'+escHtml(e.note)+'</div>':''}</div>`;
   }).join('');
 }
 
@@ -1508,17 +1518,19 @@ function medClearTimers() {
 
 function medTone(freq, duration, vol) {
   try {
-    if(!medCtx) medCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = medCtx.createOscillator();
-    const gain = medCtx.createGain();
-    osc.connect(gain); gain.connect(medCtx.destination);
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    medCtx = ctx; // keep reference for medStop cleanup
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, medCtx.currentTime);
-    gain.gain.setValueAtTime(0, medCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(vol, medCtx.currentTime + 0.5);
-    gain.gain.linearRampToValueAtTime(0, medCtx.currentTime + duration - 0.3);
-    osc.start(medCtx.currentTime);
-    osc.stop(medCtx.currentTime + duration);
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.5);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration - 0.3);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
   } catch(e) {}
 }
 
@@ -1633,10 +1645,23 @@ function loadVoices() {
   }
 }
 
+// Shared AudioContext for all tones — avoids browser limit on concurrent contexts
+let _sharedAudioCtx = null;
+function getAudioCtx() {
+  try {
+    if(!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') {
+      _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(_sharedAudioCtx.state === 'suspended') _sharedAudioCtx.resume();
+    return _sharedAudioCtx;
+  } catch(e) { return null; }
+}
+
 // Play a soft sine tone for atmosphere
 function softTone(freq, duration, vol) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
+    if(!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
@@ -1647,7 +1672,6 @@ function softTone(freq, duration, vol) {
     gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration - 0.5);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
-    setTimeout(() => { try { ctx.close(); } catch(e){} }, (duration + 1) * 1000);
   } catch(e) {}
 }
 
@@ -1840,10 +1864,11 @@ function uStart() {
   const n = calcStreak();
   const el = document.getElementById('u-streak-num');
   if(el) el.textContent = n;
-  // Show survived button after 20 seconds
+  // Show survived button after 20 seconds (only if still in surf state)
   setTimeout(() => {
+    const surf = document.getElementById('urge-surf');
     const btn = document.getElementById('u-survived-btn');
-    if(btn) btn.style.display = 'block';
+    if(btn && surf && surf.style.display !== 'none') btn.style.display = 'block';
   }, 20000);
 }
 
@@ -1851,13 +1876,13 @@ function uStartWave() {
   const canvas = document.getElementById('urge-canvas');
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
   const setSize = () => {
-    canvas.width = canvas.offsetWidth * (window.devicePixelRatio||1);
-    canvas.height = canvas.offsetHeight * (window.devicePixelRatio||1);
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // reset and apply scale in one call
   };
   setSize();
-  const dpr = window.devicePixelRatio||1;
-  ctx.scale(dpr, dpr);
   const W = canvas.offsetWidth||400;
   const H = canvas.offsetHeight||110;
   let t = 0, intensity = 0.85;
@@ -1935,7 +1960,7 @@ function uWin() {
 function uClose(keepState) {
   cancelAnimationFrame(uWaveAnim);
   clearInterval(uIntInterval);
-  clearInterval(uBreathInterval);
+  clearTimeout(uBreathInterval);
   uBreathInterval=null;
   uTimerRunning=false;
   cancelAnimationFrame(uTimerRAF);
@@ -2206,7 +2231,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Breath tool
   document.getElementById('u-breath-btn').addEventListener('click', function() {
     if(uBreathInterval) {
-      clearInterval(uBreathInterval); uBreathInterval=null;
+      clearTimeout(uBreathInterval); uBreathInterval=null;
       this.textContent='Start breathing';
       const br=document.getElementById('u-br');
       const bi=document.getElementById('u-bi');
@@ -2224,7 +2249,8 @@ document.addEventListener('DOMContentLoaded', function() {
       {lbl:'HOLD',dur:2,rs:'scale(1)',is:'scale(1)',ib:'rgba(127,119,221,0.08)',bc:'var(--bd)'},
     ];
     let pi=0;
-    const next=()=>{
+    function next(){
+      if(!uBreathInterval) return; // stopped
       const p=phases[pi%phases.length];
       const br=document.getElementById('u-br');
       const bi=document.getElementById('u-bi');
@@ -2236,9 +2262,10 @@ document.addEventListener('DOMContentLoaded', function() {
       bi.style.transition='all '+p.dur+'s ease-in-out';
       bl.textContent=p.lbl;
       pi++;
-    };
+      uBreathInterval=setTimeout(next, p.dur*1000);
+    }
+    uBreathInterval=true; // mark as running before first call
     next();
-    uBreathInterval=setInterval(next,4000);
   });
 
   // Timer tool
@@ -2297,13 +2324,6 @@ if('serviceWorker' in navigator) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
 }
 
-var _dp = null;
-var _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-var _isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-
-window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); _dp = e; });
-window.addEventListener('appinstalled', function() { _dp = null; _hideWS(); });
-
 function _hideWS() {
   var el = document.getElementById('ws');
   if(el) el.classList.add('hidden');
@@ -2313,6 +2333,9 @@ function _hideWS() {
 document.addEventListener('DOMContentLoaded', function() {
   var ws = document.getElementById('ws');
   if(!ws) return;
+
+  var _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var _isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 
   if(_isStandalone || localStorage.getItem('ws_seen')) {
     ws.classList.add('hidden');
@@ -2333,9 +2356,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var btn = document.getElementById('ws-install');
   if(btn) btn.addEventListener('click', function() {
-    if(_dp) {
-      _dp.prompt();
-      _dp.userChoice.then(function(r) { _dp = null; if(r.outcome==='accepted') _hideWS(); });
+    if(deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(r) { deferredPrompt = null; if(r.outcome==='accepted') _hideWS(); });
     } else {
       btn.textContent = 'Tap menu > Add to Home Screen';
       btn.style.fontSize = '14px';
@@ -2346,39 +2369,36 @@ document.addEventListener('DOMContentLoaded', function() {
   if(skip) skip.addEventListener('click', _hideWS);
 });
 
-// Install prompt
+// Install prompt — single source of truth
 let deferredPrompt = null;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-if(!isStandalone) {
-  // Android - intercept Chrome install prompt
-  window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    if(!localStorage.getItem('install_dismissed')) {
-      setTimeout(function() {
-        const b = document.getElementById('install-banner');
-        if(b) b.classList.add('show');
-      }, 2000);
-    }
-  });
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  if(!isStandalone && !localStorage.getItem('install_dismissed')) {
+    setTimeout(function() {
+      const b = document.getElementById('install-banner');
+      if(b) b.classList.add('show');
+    }, 2000);
+  }
+});
 
-  window.addEventListener('appinstalled', function() {
-    const b = document.getElementById('install-banner');
-    if(b) b.classList.remove('show');
-    deferredPrompt = null;
-  });
+window.addEventListener('appinstalled', function() {
+  deferredPrompt = null;
+  _hideWS();
+  const b = document.getElementById('install-banner');
+  if(b) b.classList.remove('show');
+});
 
-  // iOS Safari only
-  if(isIOS && !localStorage.getItem('ios_dismissed')) {
-    const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|chromium/i.test(navigator.userAgent);
-    if(isSafari) {
-      setTimeout(function() {
-        const b = document.getElementById('ios-banner');
-        if(b) b.classList.add('show');
-      }, 3000);
-    }
+if(!isStandalone && isIOS && !localStorage.getItem('ios_dismissed')) {
+  const isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|chromium/i.test(navigator.userAgent);
+  if(isSafari) {
+    setTimeout(function() {
+      const b = document.getElementById('ios-banner');
+      if(b) b.classList.add('show');
+    }, 3000);
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "The Transmute App",
-  "short_name": "The Transmute App",
+  "short_name": "Transmute",
   "description": "Semen retention personal check-in and mood tracker",
   "start_url": "/",
   "display": "standalone",
@@ -12,13 +12,25 @@
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
