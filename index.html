@@ -248,13 +248,32 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .ios-step-icon{font-size:16px;flex-shrink:0;}
   .ios-banner-close{width:100%;background:transparent;border:.5px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:'Inter',sans-serif;-webkit-appearance:none;}
 
-  .ws{position:fixed;inset:0;background:#0A0520;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
+  .ws{position:fixed;inset:0;background:#080615;z-index:1000;display:flex;flex-direction:column;overflow:hidden;}
   .ws.hidden{display:none;}
-  .ws-flame{font-size:64px;margin-bottom:16px;}
-  .ws-title{font-size:28px;font-weight:700;color:white;margin-bottom:8px;}
-  .ws-sub{font-size:15px;color:rgba(255,255,255,0.55);margin-bottom:36px;line-height:1.6;}
-  .ws-btn{width:100%;max-width:300px;padding:18px;background:#534AB7;color:white;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:10px;-webkit-appearance:none;}
-  .ws-skip{background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;padding:12px;}
+  .ws-slides{display:flex;flex:1;transition:transform .4s cubic-bezier(.4,0,.2,1);will-change:transform;}
+  .ws-slide{min-width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 28px 24px;text-align:center;}
+  .ws-icon{font-size:72px;margin-bottom:20px;line-height:1;}
+  .ws-title{font-size:30px;font-weight:800;color:white;margin-bottom:12px;line-height:1.2;letter-spacing:-.5px;}
+  .ws-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;max-width:300px;}
+  .ws-features{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;margin-top:28px;text-align:left;}
+  .ws-feat{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,0.05);border:.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;}
+  .ws-feat-ic{font-size:24px;flex-shrink:0;margin-top:1px;}
+  .ws-feat-txt strong{display:block;font-size:14px;font-weight:700;color:white;margin-bottom:2px;}
+  .ws-feat-txt span{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+  .ws-hero{width:100%;max-width:320px;margin-top:28px;background:linear-gradient(135deg,rgba(108,92,231,0.25),rgba(72,52,200,0.15));border:1px solid rgba(108,92,231,0.4);border-radius:20px;padding:22px;text-align:left;}
+  .ws-hero-badge{display:inline-block;background:var(--ac);color:white;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:12px;}
+  .ws-hero-title{font-size:20px;font-weight:800;color:white;margin-bottom:8px;line-height:1.2;}
+  .ws-hero-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:16px;}
+  .ws-hero-perks{display:flex;flex-direction:column;gap:8px;}
+  .ws-hero-perk{font-size:13px;color:rgba(255,255,255,0.8);display:flex;align-items:center;gap:8px;}
+  .ws-trial{margin-top:16px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;text-align:center;}
+  .ws-trial strong{color:rgba(255,255,255,0.8);}
+  .ws-footer{padding:20px 28px max(20px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;}
+  .ws-dots{display:flex;gap:6px;margin-bottom:4px;}
+  .ws-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.2);transition:all .3s;}
+  .ws-dot.on{width:20px;background:var(--ac);}
+  .ws-btn{width:100%;max-width:340px;padding:17px;background:linear-gradient(135deg,var(--ac),var(--acd));color:white;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(108,92,231,0.4);-webkit-appearance:none;}
+  .ws-skip{background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;padding:8px;}
   .ws-ios{background:rgba(255,255,255,0.08);border-radius:14px;padding:18px;width:100%;max-width:300px;margin-bottom:16px;text-align:left;}
   .ws-step{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:14px;color:rgba(255,255,255,0.85);}
   .ws-step:last-child{margin-bottom:0;}
@@ -288,21 +307,83 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 <div class="app">
 
 <div class="ws" id="ws">
-  <div class="ws-flame">🔥</div>
-  <div class="ws-title">Transmute</div>
-  <div class="ws-sub">Your semen retention companion.<br>Track. Transmute. Transform.</div>
-  <div id="ws-android" style="width:100%;display:flex;flex-direction:column;align-items:center;">
-    <button class="ws-btn" id="ws-install">📲 Add to Home Screen</button>
-    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px;">Free · No account needed · Works offline</div>
-  </div>
-  <div id="ws-ios" style="display:none;width:100%;flex-direction:column;align-items:center;">
-    <div class="ws-ios">
-      <div class="ws-step"><span class="ws-step-ic">⬆️</span><span>Tap <strong>Share</strong> at the bottom of Safari</span></div>
-      <div class="ws-step"><span class="ws-step-ic">➕</span><span>Tap <strong>Add to Home Screen</strong></span></div>
-      <div class="ws-step"><span class="ws-step-ic">✅</span><span>Tap <strong>Add</strong> — installed!</span></div>
+  <div class="ws-slides" id="ws-slides">
+
+    <!-- SLIDE 1: Hook -->
+    <div class="ws-slide">
+      <div class="ws-icon">⚡</div>
+      <div class="ws-title">This changes<br>everything.</div>
+      <div class="ws-sub">Most men never learn to use their sexual energy. You're about to. Transmute is the only tool built around your journey — not just tracking days, but transforming them.</div>
     </div>
+
+    <!-- SLIDE 2: Features -->
+    <div class="ws-slide">
+      <div class="ws-icon">🔥</div>
+      <div class="ws-title">Built for<br>your journey.</div>
+      <div class="ws-features">
+        <div class="ws-feat">
+          <div class="ws-feat-ic">📅</div>
+          <div class="ws-feat-txt"><strong>Streak tracking</strong><span>See your progress build day by day with phases, badges and energy scores.</span></div>
+        </div>
+        <div class="ws-feat">
+          <div class="ws-feat-ic">🧠</div>
+          <div class="ws-feat-txt"><strong>Daily check-ins</strong><span>Log mood, energy and focus so you can see what changes when you commit.</span></div>
+        </div>
+        <div class="ws-feat">
+          <div class="ws-feat-ic">📖</div>
+          <div class="ws-feat-txt"><strong>Transmutation guides</strong><span>Techniques to redirect your energy into focus, creativity and drive — on demand.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Urge Wave hero -->
+    <div class="ws-slide">
+      <div class="ws-icon">🌊</div>
+      <div class="ws-title">Your secret<br>weapon.</div>
+      <div class="ws-hero">
+        <div class="ws-hero-badge">⭐ Most powerful feature</div>
+        <div class="ws-hero-title">Urge Wave — SOS Tool</div>
+        <div class="ws-hero-desc">When an urge hits, you have seconds before it controls you. Urge Wave meets you in that moment with a guided, real-time technique to ride the wave — and come out stronger.</div>
+        <div class="ws-hero-perks">
+          <div class="ws-hero-perk">🎯 Breath-paced urge surfing</div>
+          <div class="ws-hero-perk">⏱️ Real-time intensity tracker</div>
+          <div class="ws-hero-perk">🧘 Grounding & redirect tools</div>
+          <div class="ws-hero-perk">📊 Tracks your patterns over time</div>
+        </div>
+        <div class="ws-trial"><strong>Free for your first 7 days.</strong><br>After that, unlock it for less than a coffee a month. Your streak is worth it.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Install CTA -->
+    <div class="ws-slide">
+      <div class="ws-icon">🚀</div>
+      <div class="ws-title">Ready to<br>start?</div>
+      <div class="ws-sub" style="margin-bottom:28px;">Free to use. No account. Works offline. Your data stays on your device.</div>
+      <div id="ws-android" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+        <button class="ws-btn" id="ws-install" style="max-width:340px;margin-bottom:10px;">📲 Add to Home Screen</button>
+        <div style="font-size:12px;color:rgba(255,255,255,0.25);">Free · No account needed · Works offline</div>
+      </div>
+      <div id="ws-ios" style="display:none;width:100%;flex-direction:column;align-items:center;">
+        <div class="ws-ios" style="max-width:340px;">
+          <div class="ws-step"><span class="ws-step-ic">⬆️</span><span>Tap <strong>Share</strong> at the bottom of Safari</span></div>
+          <div class="ws-step"><span class="ws-step-ic">➕</span><span>Tap <strong>Add to Home Screen</strong></span></div>
+          <div class="ws-step"><span class="ws-step-ic">✅</span><span>Tap <strong>Add</strong> — installed!</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <button class="ws-skip" id="ws-skip">Skip — use in browser</button>
+
+  <div class="ws-footer">
+    <div class="ws-dots" id="ws-dots">
+      <div class="ws-dot on"></div>
+      <div class="ws-dot"></div>
+      <div class="ws-dot"></div>
+      <div class="ws-dot"></div>
+    </div>
+    <button class="ws-btn" id="ws-next" style="max-width:340px;">Get started →</button>
+    <button class="ws-skip" id="ws-skip">Skip</button>
+  </div>
 </div>
 
 <div class="hdr">
@@ -2857,6 +2938,28 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 
+  var totalSlides = 4;
+  var curSlide = 0;
+  var slides = document.getElementById('ws-slides');
+  var dots = document.querySelectorAll('.ws-dot');
+  var nextBtn = document.getElementById('ws-next');
+
+  function goToSlide(n) {
+    curSlide = n;
+    slides.style.transform = 'translateX(-' + (n * 100) + 'vw)';
+    dots.forEach(function(d, i) { d.classList.toggle('on', i === n); });
+    if(n === totalSlides - 1) {
+      nextBtn.textContent = 'Let\'s go ✓';
+      nextBtn.onclick = _hideWS;
+    } else {
+      nextBtn.textContent = 'Next →';
+      nextBtn.onclick = function() { goToSlide(curSlide + 1); };
+    }
+  }
+
+  nextBtn.onclick = function() { goToSlide(curSlide + 1); };
+
+  // iOS vs Android install logic (slide 4)
   if(_isIOS) {
     var isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios/i.test(navigator.userAgent);
     var wsa = document.getElementById('ws-android');
@@ -2869,14 +2972,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  var btn = document.getElementById('ws-install');
-  if(btn) btn.addEventListener('click', function() {
+  var installBtn = document.getElementById('ws-install');
+  if(installBtn) installBtn.addEventListener('click', function() {
     if(deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(function(r) { deferredPrompt = null; if(r.outcome==='accepted') _hideWS(); });
     } else {
-      btn.textContent = 'Tap menu > Add to Home Screen';
-      btn.style.fontSize = '14px';
+      installBtn.textContent = 'Tap menu > Add to Home Screen';
+      installBtn.style.fontSize = '14px';
     }
   });
 
