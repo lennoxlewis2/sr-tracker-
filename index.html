@@ -123,6 +123,11 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 .e-mood{font-size:13px;font-weight:600;margin-bottom:3px;}
 .e-note{font-size:12px;color:var(--ts);line-height:1.5;margin-top:3px;}
 .wk-card{background:var(--bg);border-radius:var(--r1);padding:12px 14px;margin-bottom:8px;border:.5px solid var(--bd);}
+.urge-entry{border-left:2px solid var(--teal4);padding:12px 16px;margin-bottom:10px;background:var(--sf);border-radius:0 var(--r2) var(--r2) 0;}
+.urge-sum{background:linear-gradient(135deg,rgba(29,158,117,0.12),rgba(15,110,86,0.06));border:.5px solid rgba(29,158,117,0.35);border-radius:var(--r2);padding:14px 16px;margin-bottom:12px;}
+.urge-sum-top{font-size:14px;color:var(--tx);font-weight:600;margin-bottom:4px;}
+.urge-sum-num{font-size:20px;font-weight:800;color:var(--teal4);}
+.urge-sum-sub{font-size:12px;color:var(--ts);line-height:1.5;}
 /* Insights */
 .ic{background:var(--acl);border:.5px solid var(--ac2);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
 .ic-t{font-size:11px;font-weight:700;color:var(--ac2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
@@ -247,7 +252,11 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .uint-dot{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);flex-shrink:0;}
   .uint-l{flex:1;text-align:left;font-size:15px;font-weight:600;color:var(--tx);}
   .uint-n{font-size:13px;font-weight:700;color:var(--c);}
-  .urf-survived{width:calc(100% - 40px);margin:0 20px 20px;padding:15px;background:linear-gradient(135deg,var(--ac),var(--acd));color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(108,92,231,0.35);display:none;-webkit-appearance:none;}
+  .urf-done{display:none;padding:0 20px 20px;}
+  .urf-done.show{display:block;animation:urfDoneIn .6s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes urfDoneIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .urf-done-hint{font-size:12px;color:var(--ts);text-align:center;line-height:1.6;margin-bottom:10px;}
+  .urf-survived{width:100%;margin:0;padding:15px;background:linear-gradient(135deg,var(--ac),var(--acd));color:white;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(108,92,231,0.35);-webkit-appearance:none;}
   .breath-ring-wrap{width:100px;height:100px;border-radius:50%;border:3px solid var(--ac);display:flex;align-items:center;justify-content:center;margin:14px auto;transition:all 3.5s ease-in-out;}
   .breath-ring-inner{width:58px;height:58px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;transition:all 3.5s ease-in-out;}
   .breath-ring-lbl{font-size:10px;font-weight:600;color:var(--ac);text-align:center;line-height:1.3;}
@@ -754,6 +763,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       <button class="btn-g" id="hf-all" style="border-color:var(--ac);color:var(--ac)">All</button>
       <button class="btn-g" id="hf-daily">Daily</button>
       <button class="btn-g" id="hf-weekly">Weekly</button>
+      <button class="btn-g" id="hf-urge">Urges</button>
     </div>
     <div id="hist-list" style="font-size:13px;color:var(--ts)">No entries yet.</div>
     <button class="btn-g" style="width:100%;margin-top:11px;display:flex;align-items:center;justify-content:center;gap:7px;" id="export-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span id="export-lbl">Export CSV</span></button>
@@ -1207,7 +1217,10 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
           </div>
         </div>
 
-        <button class="urf-survived" id="u-survived-btn" onclick="uWin()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>I surfed it — urge has passed</button>
+        <div class="urf-done" id="urf-done">
+          <div class="urf-done-hint" id="urf-done-hint">No clock here. Close it out whenever the urge has eased for you — even a little.</div>
+          <button class="urf-survived" id="u-survived-btn" onclick="uWin()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>I rode it out</button>
+        </div>
       </div>
 
       <!-- WIN STATE -->
@@ -1406,7 +1419,7 @@ const TRANSLATIONS = {
     intention:'Intention for next week', intentionPh:'One focus or commitment...',
     saveReview:'Save weekly review', backDaily:'Back to daily check-in',
     weeklyReview:'Weekly review', weeklyReviewSub:'Take 5 minutes to reflect honestly.',
-    histAll:'All', histDaily:'Daily', histWeekly:'Weekly',
+    histAll:'All', histDaily:'Daily', histWeekly:'Weekly', histUrges:'Urges',
     exportCsv:'Export CSV',
     allPhases:'All phases',
     pranayama:'Pranayama', meditation:'Meditation', poses:'Poses',
@@ -1417,7 +1430,7 @@ const TRANSLATIONS = {
     installApp:'Install app',
     pickDate:'Set start date',
     sosBtn:'Surf it now →',
-    survived:'I surfed it — urge has passed',
+    survived:'I rode it out',
     backToApp:'← Back to app',
     startBreathing:'Start breathing', stop:'Stop',
     startCountdown:'Start the countdown',
@@ -1460,7 +1473,7 @@ const TRANSLATIONS = {
     intention:'Intención para la próxima semana', intentionPh:'Un foco o compromiso...',
     saveReview:'Guardar revisión semanal', backDaily:'Volver al registro diario',
     weeklyReview:'Revisión semanal', weeklyReviewSub:'Tómate 5 minutos para reflexionar honestamente.',
-    histAll:'Todo', histDaily:'Diario', histWeekly:'Semanal',
+    histAll:'Todo', histDaily:'Diario', histWeekly:'Semanal', histUrges:'Impulsos',
     exportCsv:'Exportar CSV',
     allPhases:'Todas las fases',
     pranayama:'Pranayama', meditation:'Meditación', poses:'Posturas',
@@ -1471,7 +1484,7 @@ const TRANSLATIONS = {
     installApp:'Instalar app',
     pickDate:'Establecer fecha',
     sosBtn:'🌊 Siento un impulso — surfear ahora',
-    survived:'Lo superé — el impulso ha pasado',
+    survived:'Lo he superado',
     backToApp:'← Volver a la app',
     startBreathing:'Iniciar respiración', stop:'Detener',
     startCountdown:'Iniciar cuenta regresiva',
@@ -1514,7 +1527,7 @@ const TRANSLATIONS = {
     intention:'Intention pour la semaine prochaine', intentionPh:'Un objectif ou engagement...',
     saveReview:'Sauvegarder le bilan', backDaily:'Retour au bilan quotidien',
     weeklyReview:'Bilan hebdomadaire', weeklyReviewSub:'Prends 5 minutes pour réfléchir honnêtement.',
-    histAll:'Tout', histDaily:'Quotidien', histWeekly:'Hebdomadaire',
+    histAll:'Tout', histDaily:'Quotidien', histWeekly:'Hebdomadaire', histUrges:'Envies',
     exportCsv:'Exporter CSV',
     allPhases:'Toutes les phases',
     pranayama:'Pranayama', meditation:'Méditation', poses:'Postures',
@@ -1525,7 +1538,7 @@ const TRANSLATIONS = {
     installApp:'Installer l\'app',
     pickDate:'Définir la date',
     sosBtn:'🌊 Je ressens une envie — surfer maintenant',
-    survived:'J\'ai tenu — l\'envie est passée',
+    survived:'Je l\'ai surmontée',
     backToApp:'← Retour à l\'app',
     startBreathing:'Commencer la respiration', stop:'Arrêter',
     startCountdown:'Lancer le compte à rebours',
@@ -1568,7 +1581,7 @@ const TRANSLATIONS = {
     intention:'Vorhaben für nächste Woche', intentionPh:'Ein Fokus oder Versprechen...',
     saveReview:'Überprüfung speichern', backDaily:'Zurück zum täglichen Eintrag',
     weeklyReview:'Wöchentliche Überprüfung', weeklyReviewSub:'Nimm dir 5 Minuten für ehrliche Reflexion.',
-    histAll:'Alle', histDaily:'Täglich', histWeekly:'Wöchentlich',
+    histAll:'Alle', histDaily:'Täglich', histWeekly:'Wöchentlich', histUrges:'Dränge',
     exportCsv:'CSV exportieren',
     allPhases:'Alle Phasen',
     pranayama:'Pranayama', meditation:'Meditation', poses:'Haltungen',
@@ -1579,7 +1592,7 @@ const TRANSLATIONS = {
     installApp:'App installieren',
     pickDate:'Datum setzen',
     sosBtn:'🌊 Ich spüre einen Drang — jetzt surfen',
-    survived:'Ich habe durchgehalten — Drang ist vorbei',
+    survived:'Ich hab es überstanden',
     backToApp:'← Zurück zur App',
     startBreathing:'Atmen starten', stop:'Stopp',
     startCountdown:'Countdown starten',
@@ -1622,7 +1635,7 @@ const TRANSLATIONS = {
     intention:'Intenção para a próxima semana', intentionPh:'Um foco ou compromisso...',
     saveReview:'Salvar revisão semanal', backDaily:'Voltar ao registro diário',
     weeklyReview:'Revisão semanal', weeklyReviewSub:'Tira 5 minutos para refletir honestamente.',
-    histAll:'Tudo', histDaily:'Diário', histWeekly:'Semanal',
+    histAll:'Tudo', histDaily:'Diário', histWeekly:'Semanal', histUrges:'Impulsos',
     exportCsv:'Exportar CSV',
     allPhases:'Todas as fases',
     pranayama:'Pranayama', meditation:'Meditação', poses:'Posturas',
@@ -1633,7 +1646,7 @@ const TRANSLATIONS = {
     installApp:'Instalar app',
     pickDate:'Definir data',
     sosBtn:'🌊 Estou sentindo um impulso — surfar agora',
-    survived:'Surfei — o impulso passou',
+    survived:'Eu superei',
     backToApp:'← Voltar à app',
     startBreathing:'Iniciar respiração', stop:'Parar',
     startCountdown:'Iniciar contagem regressiva',
@@ -1676,7 +1689,7 @@ const TRANSLATIONS = {
     intention:'نيتك للأسبوع القادم', intentionPh:'تركيز أو التزام واحد...',
     saveReview:'حفظ المراجعة الأسبوعية', backDaily:'العودة للتسجيل اليومي',
     weeklyReview:'المراجعة الأسبوعية', weeklyReviewSub:'خذ 5 دقائق للتأمل بصدق.',
-    histAll:'الكل', histDaily:'يومي', histWeekly:'أسبوعي',
+    histAll:'الكل', histDaily:'يومي', histWeekly:'أسبوعي', histUrges:'رغبات',
     exportCsv:'تصدير CSV',
     allPhases:'جميع المراحل',
     pranayama:'برانياما', meditation:'تأمل', poses:'أوضاع',
@@ -1687,7 +1700,7 @@ const TRANSLATIONS = {
     installApp:'تثبيت التطبيق',
     pickDate:'تعيين التاريخ',
     sosBtn:'🌊 أشعر برغبة — اركبها الآن',
-    survived:'تجاوزتها — الرغبة مضت',
+    survived:'لقد تجاوزتها',
     backToApp:'← العودة للتطبيق',
     startBreathing:'بدء التنفس', stop:'إيقاف',
     startCountdown:'بدء العد التنازلي',
@@ -1829,6 +1842,7 @@ function applyLang() {
   set('hf-all', t('histAll'));
   set('hf-daily', t('histDaily'));
   set('hf-weekly', t('histWeekly'));
+  set('hf-urge', t('histUrges'));
   set('export-lbl', t('exportCsv'));
 
   // Phases
@@ -2352,17 +2366,44 @@ function saveReview() {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function uLevelLabel(lvl) {
+  return lvl>=90?'overwhelming':lvl>=75?'intense':lvl>=55?'strong':lvl>=40?'noticeable':'mild';
+}
+function uFmtSecs(s) {
+  s = s||0; const m = Math.floor(s/60), r = s%60;
+  return m ? (m+'m '+r+'s') : (r+'s');
+}
+
 function renderHistory(f) {
-  ['all','daily','weekly'].forEach(x => {
+  ['all','daily','weekly','urge'].forEach(x => {
     const el = document.getElementById('hf-'+x);
     if(el) { el.style.borderColor = x===f?'var(--ac)':''; el.style.color = x===f?'var(--ac)':''; }
   });
   const el = document.getElementById('hist-list');
   if(!S.entries.length) { el.innerHTML = '<p>No entries yet.</p>'; return; }
-  const list = f==='weekly' ? S.entries.filter(e=>e.type==='weekly') : f==='daily' ? S.entries.filter(e=>e.type==='daily') : S.entries;
-  if(!list.length) { el.innerHTML = '<p>No entries of this type yet.</p>'; return; }
-  el.innerHTML = [...list].reverse().map(e => {
+  const list = f==='weekly' ? S.entries.filter(e=>e.type==='weekly')
+    : f==='daily' ? S.entries.filter(e=>e.type==='daily')
+    : f==='urge' ? S.entries.filter(e=>e.type==='urge')
+    : S.entries;
+  if(!list.length) { el.innerHTML = f==='urge' ? '<p>No surfed urges logged yet. Every urge you ride out gets recorded here.</p>' : '<p>No entries of this type yet.</p>'; return; }
+
+  // "Getting easier" summary on the Urges view
+  let summary = '';
+  if(f==='urge' && list.length >= 2) {
+    const avg = arr => Math.round(arr.reduce((a,e)=>a+(e.level||0),0)/arr.length);
+    const half = Math.floor(list.length/2);
+    const older = avg(list.slice(0, half)), recent = avg(list.slice(half));
+    const trend = recent < older - 3
+      ? "Your recent urges are starting weaker — they're losing their grip."
+      : recent > older + 3
+        ? "Urges have been stronger lately — keep showing up, every one you ride out counts."
+        : "You keep riding them out — that's how the pattern breaks.";
+    summary = `<div class="urge-sum"><div class="urge-sum-top"><span class="urge-sum-num">${list.length}</span> urge${list.length>1?'s':''} ridden out · avg start ${avg(list)}</div><div class="urge-sum-sub">${trend}</div></div>`;
+  }
+
+  el.innerHTML = summary + [...list].reverse().map(e => {
     const dt = new Date(e.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + ' · day ' + e.day;
+    if(e.type === 'urge') return `<div class="urge-entry"><div class="e-date">${dt}</div><div class="e-mood">Rode out a${e.level>=75?'n':''} ${uLevelLabel(e.level)} urge</div><div class="e-note">Started at ${e.level} · stayed with it ${uFmtSecs(e.secs)}</div></div>`;
     if(e.type === 'weekly') return `<div class="wk-card"><div class="e-date">${dt} · <span style="color:var(--amb8);font-weight:600">Weekly review</span></div>${e.wentWell?'<div class="e-note"><b>Went well:</b> '+escHtml(e.wentWell)+'</div>':''}${e.hardest?'<div class="e-note"><b>Hardest:</b> '+escHtml(e.hardest)+'</div>':''}${e.intention?'<div class="e-note"><b>Intention:</b> '+escHtml(e.intention)+'</div>':''}</div>`;
     return `<div class="entry"><div class="e-date">${dt}</div><div class="e-mood">${escHtml(e.mood)} · E${e.energy} C${e.clarity} U${e.urge}</div>${e.triggers&&e.triggers.length?'<div class="e-note">Triggers: '+e.triggers.map(escHtml).join(', ')+'</div>':''}${e.note?'<div class="e-note">'+escHtml(e.note)+'</div>':''}</div>`;
   }).join('');
@@ -3105,6 +3146,9 @@ function uBeginSurf(level) {
   document.getElementById('urge-win').style.display = 'none';
   document.getElementById('urge-surf').style.display = 'block';
   if(navigator.vibrate) navigator.vibrate(10);
+  // reset the confirmation for a fresh surf
+  document.getElementById('urf-done').classList.remove('show');
+  document.getElementById('urf-done-hint').textContent = "No clock here. Close it out whenever the urge has eased for you — even a little.";
   uShowTool(null);
   uStartWave();
   uStartIntensity();
@@ -3121,12 +3165,9 @@ function uBeginSurf(level) {
   const n = calcStreak();
   const el = document.getElementById('u-streak-num');
   if(el) el.textContent = n;
-  // Show survived button after 20 seconds
-  setTimeout(() => {
-    const surf = document.getElementById('urge-surf');
-    const btn = document.getElementById('u-survived-btn');
-    if(btn && surf && surf.style.display !== 'none') btn.style.display = 'block';
-  }, 20000);
+  // The "I rode it out" confirmation isn't time-gated — it's revealed by the
+  // model once the wave has crested (see uStartIntensity), so it never implies
+  // the user "should" be done by some clock.
 }
 
 // Free breathing-only escape (also reachable from the paywall).
@@ -3138,6 +3179,7 @@ function uStartBreath() {
   const surf = document.getElementById('urge-surf');
   surf.style.display = 'block';
   surf.classList.add('breath-only');
+  document.getElementById('urf-done').classList.remove('show');
   uShowTool('breath');
   // Elapsed timer so the "I surfed it" button still appears
   uElapsedSecs = 0;
@@ -3148,10 +3190,12 @@ function uStartBreath() {
     const el = document.getElementById('urf-elapsed');
     if(el) el.textContent = m+':'+(s<10?'0':'')+s;
   }, 1000);
+  // Breathing-only has no wave model, so reveal the confirmation once a couple
+  // of breath cycles have had time to land.
   setTimeout(() => {
-    const btn = document.getElementById('u-survived-btn');
-    if(btn && surf.style.display !== 'none') btn.style.display = 'block';
-  }, 20000);
+    const done = document.getElementById('urf-done');
+    if(done && surf.style.display !== 'none') done.classList.add('show');
+  }, 22000);
 }
 
 // ----- Unified urge model -----
@@ -3257,6 +3301,12 @@ function uStartIntensity() {
       else msg = "The wave has broken — it passed, and you stayed in control";
       lbl.textContent = msg;
     }
+    // Reveal the confirmation once the wave has crested — gently, on the user's
+    // terms. The hint copy softens further as the urge fades.
+    const done = document.getElementById('urf-done');
+    if(done && sec >= U_PEAK_T && !done.classList.contains('show')) done.classList.add('show');
+    const hint = document.getElementById('urf-done-hint');
+    if(hint && v <= 0.3) hint.textContent = "It's eased a lot. Close it out whenever you're ready.";
   };
   tick();
   uIntInterval = setInterval(tick, 120);
@@ -3287,6 +3337,8 @@ function uWin() {
   uClose(true);
   S.urgesBeat = (S.urgesBeat || 0) + 1;
   S.bestUrgeBeat = Math.max(S.bestUrgeBeat || 0, S.urgesBeat);
+  // Log the surfed urge so the user can watch them get easier over time.
+  S.entries.push({type:'urge', date:new Date().toISOString(), day:calcStreak(), level:Math.round(uStartLevel*100), secs:uElapsedSecs});
   save(); updateHome();
   document.getElementById('urge-surf').style.display='none';
   document.getElementById('urge-win').style.display='block';
@@ -3314,7 +3366,7 @@ function uReset() {
   document.getElementById('urge-win').style.display='none';
   document.getElementById('urge-surf').classList.remove('breath-only');
   document.getElementById('urge-home').style.display='block';
-  document.getElementById('u-survived-btn').style.display='none';
+  document.getElementById('urf-done').classList.remove('show');
   uAffirmIdx=0;
   const arc=document.getElementById('u-timer-arc');
   if(arc){arc.style.strokeDashoffset='0';arc.style.stroke='#7F77DD';}
@@ -3523,6 +3575,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('hf-all').addEventListener('click', function() { renderHistory('all'); });
   document.getElementById('hf-daily').addEventListener('click', function() { renderHistory('daily'); });
   document.getElementById('hf-weekly').addEventListener('click', function() { renderHistory('weekly'); });
+  document.getElementById('hf-urge').addEventListener('click', function() { renderHistory('urge'); });
   document.getElementById('export-btn').addEventListener('click', exportCSV);
 
   // ---- STORIES ----
