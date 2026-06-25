@@ -230,7 +230,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .utool-btn{padding:12px 8px;border:.5px solid rgba(255,255,255,0.08);border-radius:14px;background:rgba(255,255,255,0.04);cursor:pointer;text-align:center;font-family:'Inter',sans-serif;-webkit-appearance:none;transition:all .15s;}
   .utool-btn:active{opacity:.7;}
   .utool-btn.on{border-color:var(--ac);background:var(--acl);}
-  .utool-btn .ui{font-size:20px;display:block;margin-bottom:4px;}
+  .utool-btn .ui{font-size:20px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;color:var(--ts);}
   .utool-btn .ul{font-size:10px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:.02em;}
   .utool-btn.on .ul{color:var(--ac2);}
   .utool-sec{display:none;padding:0 20px;}.utool-sec.on{display:block;}
@@ -246,7 +246,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .adot{width:7px;height:7px;border-radius:50%;background:var(--bds);}
   .adot.on{background:var(--ac);}
   .remind-card{background:var(--sf);border:.5px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:10px;text-align:center;}
-  .remind-icon{font-size:32px;display:block;margin-bottom:8px;}
+  .remind-icon{font-size:32px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;color:var(--ac2);}
   .remind-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:6px;}
   .remind-text{font-size:13px;color:var(--ts);line-height:1.6;}
   .streak-remind-card{background:var(--acl);border:.5px solid var(--ac2);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
@@ -995,7 +995,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       <!-- SURF STATE -->
       <div id="urge-surf" style="display:none;">
         <div class="urf-header">
-          <div class="urf-badge">🌊 Urge Wave — active</div>
+          <div class="urf-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-1px;margin-right:5px"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-4 4-4 6 0s4 4 6 0 4-4 6 0" opacity=".45"/></svg>Urge Wave — active</div>
           <button class="urf-close" onclick="uClose(false)">×</button>
         </div>
 
@@ -1033,16 +1033,16 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
         <div id="utool-chooser">
           <div class="urge-tool-grid">
             <button class="utool-btn" id="tb-breath" onclick="uShowTool('breath')">
-              <span class="ui">🌬️</span><span class="ul">Breathe through it</span>
+              <span class="ui"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/><path d="M3 12c0 0 2-3 5-3h8c3 0 5 3 5 3"/><path d="M5 19c0-3 3-5 7-5"/><path d="M19 19c0-3-3-5-7-5"/></svg></span><span class="ul">Breathe through it</span>
             </button>
             <button class="utool-btn" id="tb-timer" onclick="uShowTool('timer')">
-              <span class="ui">⏱️</span><span class="ul">Ride the timer</span>
+              <span class="ui"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 3h6"/><path d="M12 3v2"/></svg></span><span class="ul">Ride the timer</span>
             </button>
             <button class="utool-btn" id="tb-affirm" onclick="uShowTool('affirm')">
-              <span class="ui">⚡</span><span class="ul">Power affirmation</span>
+              <span class="ui"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><span class="ul">Power affirmation</span>
             </button>
             <button class="utool-btn" id="tb-remind" onclick="uShowTool('remind')">
-              <span class="ui">🔥</span><span class="ul">Remember why</span>
+              <span class="ui"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-7 6-7 13a7 7 0 0 0 14 0c0-7-7-13-7-13z"/><path d="M12 9c0 0-3 3-3 6a3 3 0 0 0 6 0c0-3-3-6-3-6z" fill="currentColor" opacity=".3"/></svg></span><span class="ul">Remember why</span>
             </button>
           </div>
         </div>
@@ -1094,24 +1094,24 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
             <div class="streak-remind-txt">days of power stored. One urge is not worth losing that.</div>
           </div>
           <div class="remind-card">
-            <span class="remind-icon">🏆</span>
+            <span class="remind-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 0 1-2-2V5h4"/><path d="M18 9h2a2 2 0 0 0 2-2V5h-4"/><path d="M12 17v4"/><path d="M8 21h8"/><path d="M6 9a6 6 0 0 0 12 0V3H6z"/></svg></span>
             <div class="remind-title">You've already won</div>
             <div class="remind-text">Every man who ever broke said "just this once." That's exactly what the urge is saying right now. You know how that story ends. Write a different one.</div>
           </div>
           <div class="remind-card">
-            <span class="remind-icon">⚡</span>
+            <span class="remind-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
             <div class="remind-title">This feeling is your power</div>
             <div class="remind-text">What you're feeling right now is energy trying to escape. Hold it. In 10 minutes it becomes clarity, drive, and presence. Let it go and it becomes regret.</div>
           </div>
           <div class="remind-card">
-            <span class="remind-icon">👑</span>
+            <span class="remind-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M5 8l7 4 7-4"/></svg></span>
             <div class="remind-title">Most men will give in today</div>
             <div class="remind-text">Right now, thousands of men are facing the same wave and breaking. You're still here. That already makes you different. Prove it.</div>
           </div>
           <button class="survived-btn" onclick="uShowTool(null)" style="margin-top:4px;">← Back to tools</button>
         </div>
 
-        <button class="urf-survived" id="u-survived-btn" onclick="uWin()">✓ I surfed it — urge has passed</button>
+        <button class="urf-survived" id="u-survived-btn" onclick="uWin()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>I surfed it — urge has passed</button>
       </div>
 
       <!-- WIN STATE -->
@@ -1141,20 +1141,14 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
             <div class="w-ring2"></div>
             <div class="w-ring1"></div>
             <div class="w-orb">
-              <!-- inline alchemical flame SVG -->
-              <svg class="w-flame" width="58" height="68" viewBox="0 0 72 80" fill="none">
-                <path d="M36 6C36 6 18 26 18 46C18 57.6 26.3 67 36 67C45.7 67 54 57.6 54 46C54 26 36 6 36 6Z" fill="url(#wfg)"/>
-                <path d="M36 30C36 30 26 40 26 50C26 56 30.5 61 36 61C41.5 61 46 56 46 50C46 40 36 30 36 30Z" fill="url(#wfi)"/>
+              <svg class="w-flame" width="52" height="52" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 0 14px rgba(196,188,255,0.7)) drop-shadow(0 0 6px rgba(108,92,231,0.9));animation:flamePulse 1.6s ease-in-out infinite;">
+                <path d="M12 2c0 0-7 6-7 13a7 7 0 0 0 14 0c0-7-7-13-7-13z" fill="url(#wfOuter)"/>
+                <path d="M12 9c0 0-3 3-3 6a3 3 0 0 0 6 0c0-3-3-6-3-6z" fill="white" opacity=".92"/>
                 <defs>
-                  <linearGradient id="wfg" x1="36" y1="6" x2="36" y2="67" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="wfOuter" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stop-color="#F0ECFF"/>
-                    <stop offset="30%" stop-color="#C4BCFF"/>
-                    <stop offset="65%" stop-color="#6C5CE7"/>
-                    <stop offset="100%" stop-color="#FF6B35" stop-opacity="0.5"/>
-                  </linearGradient>
-                  <linearGradient id="wfi" x1="36" y1="30" x2="36" y2="61" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="white" stop-opacity="0.95"/>
-                    <stop offset="100%" stop-color="#C4BCFF" stop-opacity="0.15"/>
+                    <stop offset="45%" stop-color="#C4BCFF"/>
+                    <stop offset="100%" stop-color="#6C5CE7"/>
                   </linearGradient>
                 </defs>
               </svg>
@@ -1173,7 +1167,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
           <div style="font-size:14px;color:#C4BCFF;line-height:1.75;">That urge is gone. The energy stayed yours.<br>This is exactly what the practice looks like.</div>
 
           <div style="margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:rgba(108,92,231,0.18);border:.5px solid rgba(108,92,231,0.4);border-radius:20px;padding:9px 20px;">
-            <span style="font-size:15px;">🔥</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;filter:drop-shadow(0 0 4px rgba(196,188,255,0.6))"><path d="M12 2c0 0-7 6-7 13a7 7 0 0 0 14 0c0-7-7-13-7-13z" fill="#C4BCFF"/><path d="M12 9c0 0-3 3-3 6a3 3 0 0 0 6 0c0-3-3-6-3-6z" fill="white" opacity=".9"/></svg>
             <span style="font-size:13px;font-weight:700;color:#E8E4FF;">Streak still alive</span>
           </div>
         </div>
@@ -1329,7 +1323,7 @@ const TRANSLATIONS = {
     installApp:'Install app',
     pickDate:'Set start date',
     sosBtn:'Surf it now →',
-    survived:'✓ I surfed it — urge has passed',
+    survived:'I surfed it — urge has passed',
     backToApp:'← Back to app',
     startBreathing:'Start breathing', stop:'Stop',
     startCountdown:'Start the countdown',
@@ -1383,7 +1377,7 @@ const TRANSLATIONS = {
     installApp:'Instalar app',
     pickDate:'Establecer fecha',
     sosBtn:'🌊 Siento un impulso — surfear ahora',
-    survived:'✓ Lo superé — el impulso ha pasado',
+    survived:'Lo superé — el impulso ha pasado',
     backToApp:'← Volver a la app',
     startBreathing:'Iniciar respiración', stop:'Detener',
     startCountdown:'Iniciar cuenta regresiva',
@@ -1437,7 +1431,7 @@ const TRANSLATIONS = {
     installApp:'Installer l\'app',
     pickDate:'Définir la date',
     sosBtn:'🌊 Je ressens une envie — surfer maintenant',
-    survived:'✓ J\'ai tenu — l\'envie est passée',
+    survived:'J\'ai tenu — l\'envie est passée',
     backToApp:'← Retour à l\'app',
     startBreathing:'Commencer la respiration', stop:'Arrêter',
     startCountdown:'Lancer le compte à rebours',
@@ -1491,7 +1485,7 @@ const TRANSLATIONS = {
     installApp:'App installieren',
     pickDate:'Datum setzen',
     sosBtn:'🌊 Ich spüre einen Drang — jetzt surfen',
-    survived:'✓ Ich habe durchgehalten — Drang ist vorbei',
+    survived:'Ich habe durchgehalten — Drang ist vorbei',
     backToApp:'← Zurück zur App',
     startBreathing:'Atmen starten', stop:'Stopp',
     startCountdown:'Countdown starten',
@@ -1545,7 +1539,7 @@ const TRANSLATIONS = {
     installApp:'Instalar app',
     pickDate:'Definir data',
     sosBtn:'🌊 Estou sentindo um impulso — surfar agora',
-    survived:'✓ Surfei — o impulso passou',
+    survived:'Surfei — o impulso passou',
     backToApp:'← Voltar à app',
     startBreathing:'Iniciar respiração', stop:'Parar',
     startCountdown:'Iniciar contagem regressiva',
@@ -1599,7 +1593,7 @@ const TRANSLATIONS = {
     installApp:'تثبيت التطبيق',
     pickDate:'تعيين التاريخ',
     sosBtn:'🌊 أشعر برغبة — اركبها الآن',
-    survived:'✓ تجاوزتها — الرغبة مضت',
+    survived:'تجاوزتها — الرغبة مضت',
     backToApp:'← العودة للتطبيق',
     startBreathing:'بدء التنفس', stop:'إيقاف',
     startCountdown:'بدء العد التنازلي',
@@ -1761,7 +1755,7 @@ function applyLang() {
   // SOS tab
   set('sos-btn', t('sosBtn'));
   const survivedBtn = document.getElementById('u-survived-btn');
-  if(survivedBtn) survivedBtn.textContent = t('survived');
+  if(survivedBtn) survivedBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><polyline points="20 6 9 17 4 12"/></svg>' + t('survived');
   const backBtns = document.querySelectorAll('.survived-btn:not(.green)');
   backBtns.forEach(b => { if(b.textContent.includes('←')) b.textContent = t('backToApp'); });
   const breathBtn = document.getElementById('u-breath-btn');
