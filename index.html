@@ -178,6 +178,36 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 .ph6{background:linear-gradient(135deg,#0A0A0A,#1A0808);border:.5px solid #FFD700;}
 .ph-title{font-size:13px;font-weight:700;margin-bottom:5px;}
 .ph-text{font-size:13px;line-height:1.6;}
+/* Phases redesign — hero + progress timeline */
+.ph-head{margin-bottom:14px;}
+.ph-head h2{font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.5px;margin-bottom:2px;}
+.ph-head p{font-size:12.5px;color:var(--ts);line-height:1.5;}
+.ph-hero{border-radius:18px;padding:18px;margin-bottom:4px;border:.5px solid var(--ac2);background:linear-gradient(150deg,var(--acl),var(--sf));}
+.ph-hero-tag{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ac2);margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.ph-hero-tag svg{width:13px;height:13px;}
+.ph-hero-name{font-size:20px;font-weight:800;color:var(--tx);letter-spacing:-.3px;margin-bottom:3px;}
+.ph-hero-day{font-size:12px;color:var(--ac2);font-weight:600;margin-bottom:11px;}
+.ph-hero-text{font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:15px;}
+.ph-prog-lbl{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:600;margin-bottom:6px;}
+.ph-prog-lbl .l{color:var(--ts);}.ph-prog-lbl .r{color:var(--ac2);white-space:nowrap;}
+.ph-prog-track{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;border:.5px solid var(--bd);}
+.ph-prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--ac),var(--ac2));}
+.ph-tl-lbl{font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.05em;margin:20px 0 12px;}
+.pl-row{display:flex;gap:13px;position:relative;padding-bottom:11px;}
+.pl-row:not(:last-child)::before{content:'';position:absolute;left:12px;top:27px;bottom:1px;width:2px;background:var(--bd);}
+.pl-row.pl-done:not(:last-child)::before{background:var(--teal6);}
+.pl-node{position:relative;z-index:1;flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--bds);background:var(--sf);color:var(--tt);}
+.pl-node svg{width:13px;height:13px;}
+.pl-done .pl-node{background:var(--teal8);border-color:var(--teal4);color:#3FC79B;}
+.pl-cur .pl-node{background:var(--ac);border-color:var(--ac2);color:#fff;box-shadow:0 0 0 4px rgba(108,92,231,0.18);}
+.pl-card{flex:1;min-width:0;background:var(--sf);border:.5px solid var(--bd);border-radius:12px;padding:11px 13px;}
+.pl-cur .pl-card{border-color:var(--ac2);background:var(--acl);}
+.pl-next .pl-card{opacity:.58;}
+.pl-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.pl-name{font-size:13.5px;font-weight:700;color:var(--tx);}
+.pl-here{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ac2);background:rgba(108,92,231,0.18);border-radius:5px;padding:2px 6px;margin-left:7px;vertical-align:1px;}
+.pl-range{font-size:9.5px;color:var(--tt);font-weight:700;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;}
+.pl-text{font-size:12px;color:var(--ts);line-height:1.55;}
 .ph1 .ph-title{color:var(--teal8);}.ph1 .ph-text{color:var(--teal6);}
 .ph2 .ph-title{color:var(--acd);}.ph2 .ph-text{color:var(--ac);}
 .ph3 .ph-title{color:var(--amb8);}.ph3 .ph-text{color:var(--amb6);}
@@ -886,20 +916,10 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   <!-- PHASES -->
   <div id="s-phases" class="sec">
     <button class="subback" onclick="goTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
-    <div id="ph-current" class="ph-block ph1" style="margin-bottom:14px">
-      <div class="ph-title" id="pc-title">Your current phase</div>
-      <div class="ph-text" id="pc-text">Set your start date to see phase guidance.</div>
-    </div>
-    <div class="lbl" style="margin-bottom:8px">All phases</div>
-    <div class="ph-block ph1"><div class="ph-title">Days 1–7 · Foundation</div><div class="ph-text">Your body is recalibrating. Flatlines and low energy are normal. Focus on sleep, hydration, and grounding. The foundation is being laid.</div></div>
-    <div class="ph-block ph2"><div class="ph-title">Days 8–21 · Rewiring</div><div class="ph-text">Urges intensify as dopamine pathways rewire. Channel the energy into exercise, creativity, or cold exposure. Avoid idle time.</div></div>
-    <div class="ph-block ph3"><div class="ph-title">Days 22–40 · Peak energy</div><div class="ph-text">Heightened confidence, magnetism, and drive. Testosterone expression tends to peak. Stay grounded — overconfidence is a real risk.</div></div>
-    <div class="ph-block ph4"><div class="ph-title">Days 41–89 · Mastery</div><div class="ph-text">The practice becomes identity. Urges stabilise. Energy is sustained. Your voice deepens, eye contact holds longer, others respond to you differently.</div></div>
-    <div class="ph-block ph5"><div class="ph-title">Days 90–119 · Crystallisation</div><div class="ph-text">The rewiring is largely complete. Old urge pathways atrophy from disuse. Creativity peaks — many men report their most inspired work here. The transmutation is real and measurable.</div></div>
-    <div class="ph-block ph5"><div class="ph-title">Days 120–179 · Diamond Mind</div><div class="ph-text">Emotional regulation reaches a new level. You process stress faster, think more clearly under pressure. People feel your stillness. This is the energy of a man who is no longer fighting himself.</div></div>
-    <div class="ph-block ph5"><div class="ph-title">Days 180–269 · Transcendence</div><div class="ph-text">For many men, spiritual experience begins to open here. Heightened intuition, vivid dreams, synchronicities. A sense of connection and purpose beyond the self. Something genuinely shifts at this depth.</div></div>
-    <div class="ph-block ph6"><div class="ph-title">Days 270–364 · Solar</div><div class="ph-text">Nine months. Presence becomes a felt quality — others sense something when near you they cannot explain. Leadership comes naturally. Physical vitality operates at a level most men never experience.</div></div>
-    <div class="ph-block ph6"><div class="ph-title">Day 365+ · The Eternal Flame</div><div class="ph-text">One year and beyond. This is no longer a practice. It is a philosophy, a way of being, and a permanent upgrade. You carry a quiet, unshakeable power that no external circumstance can take. Guard it. Grow it. Give from it.</div></div>
+    <div class="ph-head"><h2>Your phases</h2><p>The full arc of the journey — and exactly where you stand on it.</p></div>
+    <div id="ph-current" class="ph-hero"></div>
+    <div class="ph-tl-lbl">The full journey</div>
+    <div id="ph-list"></div>
   </div>
 
   <!-- TRANSMUTATION -->
@@ -2662,24 +2682,52 @@ function renderInsights() {
 }
 
 // ===================== PHASES =====================
+const PHASES = [
+  {min:0,  max:7,    label:'Foundation',      range:'Days 1–7',     text:'Your body is recalibrating. Flatlines and low energy are normal. Focus on sleep, hydration, and grounding — the foundation is being laid.'},
+  {min:8,  max:21,   label:'Rewiring',        range:'Days 8–21',    text:'Urges intensify as dopamine pathways rewire. Channel the energy into exercise, creativity, or cold exposure. Avoid idle time.'},
+  {min:22, max:40,   label:'Peak energy',     range:'Days 22–40',   text:'Heightened confidence, magnetism, and drive. Testosterone expression tends to peak. Stay grounded — overconfidence is a real risk.'},
+  {min:41, max:89,   label:'Mastery',         range:'Days 41–89',   text:'The practice becomes identity. Urges stabilise and energy is sustained. Your voice deepens, eye contact holds longer, others respond to you differently.'},
+  {min:90, max:119,  label:'Crystallisation', range:'Days 90–119',  text:'The rewiring is largely complete. Old urge pathways atrophy from disuse. Creativity peaks — the transmutation is real and measurable.'},
+  {min:120,max:179,  label:'Diamond Mind',    range:'Days 120–179', text:'Emotional regulation reaches a new level. You think more clearly under pressure. People feel your stillness — you are no longer fighting yourself.'},
+  {min:180,max:269,  label:'Transcendence',   range:'Days 180–269', text:'For many men, spiritual experience begins to open here. Heightened intuition, vivid dreams, synchronicities. Something genuinely shifts at this depth.'},
+  {min:270,max:364,  label:'Solar',           range:'Days 270–364', text:'Nine months. Presence becomes a felt quality others sense but cannot explain. Leadership comes naturally. Physical vitality is at its peak.'},
+  {min:365,max:9999, label:'Eternal Flame',   range:'Day 365+',     text:'This is no longer a practice — it is a philosophy and a permanent upgrade. You carry a quiet, unshakeable power. Guard it. Grow it. Give from it.'}
+];
+
 function renderPhase() {
   const n = calcStreak();
-  const phases = [
-    {min:0,  max:7,   cls:'ph1', name:'Days 1–7 · Foundation',    text:'Your body is recalibrating. Flatlines and low energy are normal. Focus on sleep, hydration, and grounding.'},
-    {min:8,  max:21,  cls:'ph2', name:'Days 8–21 · Rewiring',     text:'Urges intensify as dopamine pathways rewire. Channel the energy into exercise, creativity, or cold exposure.'},
-    {min:22, max:40,  cls:'ph3', name:'Days 22–40 · Peak energy', text:'Heightened confidence, magnetism, and drive. Testosterone expression tends to peak. Stay grounded.'},
-    {min:41, max:89,  cls:'ph4', name:'Days 41–89 · Mastery',     text:'The practice becomes identity. Urges stabilise. Energy is sustained. Your presence is different now.'},
-    {min:90, max:119, cls:'ph5', name:'Days 90–119 · Crystallisation', text:'The rewiring is largely complete. Creativity peaks. The transmutation is real and measurable.'},
-    {min:120,max:179, cls:'ph5', name:'Days 120–179 · Diamond Mind', text:'Emotional regulation reaches a new level. You process stress faster. People feel your stillness.'},
-    {min:180,max:269, cls:'ph5', name:'Days 180–269 · Transcendence', text:'Spiritual experience may open here. Heightened intuition, vivid dreams. Something genuinely shifts.'},
-    {min:270,max:364, cls:'ph6', name:'Days 270–364 · Solar',     text:'Presence becomes a felt quality. Leadership comes naturally. Physical vitality is at its peak.'},
-    {min:365,max:9999,cls:'ph6', name:'Day 365+ · Eternal Flame', text:'This is no longer a practice. It is a philosophy and a permanent upgrade. Guard it. Grow it. Give from it.'}
-  ];
-  const cur = phases.find(p => n >= p.min && n <= p.max) || phases[0];
-  const el = document.getElementById('ph-current');
-  el.className = 'ph-block ' + cur.cls;
-  document.getElementById('pc-title').textContent = 'Day ' + n + ' — ' + cur.name;
-  document.getElementById('pc-text').textContent = cur.text;
+  const started = !!S.startDate;
+  const curIdx = started ? Math.max(0, PHASES.findIndex(p => n >= p.min && n <= p.max)) : -1;
+  const icSpark = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
+  const hero = document.getElementById('ph-current');
+
+  if(!started) {
+    hero.innerHTML = `<div class="ph-hero-tag">${icSpark} Your phases</div><div class="ph-hero-name">Not started yet</div><div class="ph-hero-text" style="margin-bottom:0">Set your start date on the home screen to see exactly which phase you're in — and what's coming next.</div>`;
+  } else {
+    const cur = PHASES[curIdx];
+    const next = PHASES[curIdx + 1];
+    const dispDay = Math.max(1, n);   // app counts the start day as Day 1, not 0
+    const span = cur.max - cur.min + 1;
+    const into = Math.min(span, n - cur.min + 1);
+    const pct = Math.max(5, Math.min(100, Math.round(into / span * 100)));
+    let prog;
+    if(next) {
+      const left = cur.max - n + 1;
+      prog = `<div class="ph-prog-lbl"><span class="l">Day ${into} of ${span} in this phase</span><span class="r">${left} day${left===1?'':'s'} to ${next.label}</span></div><div class="ph-prog-track"><div class="ph-prog-fill" style="width:${pct}%"></div></div>`;
+    } else {
+      prog = `<div class="ph-prog-lbl"><span class="l">The final phase</span><span class="r">Keep the flame</span></div><div class="ph-prog-track"><div class="ph-prog-fill" style="width:100%"></div></div>`;
+    }
+    hero.innerHTML = `<div class="ph-hero-tag">${icSpark} Current phase</div><div class="ph-hero-name">${cur.label}</div><div class="ph-hero-day">Day ${dispDay} · ${cur.range}</div><div class="ph-hero-text">${cur.text}</div>${prog}`;
+  }
+
+  const icCheck = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const icDot = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>';
+  document.getElementById('ph-list').innerHTML = PHASES.map((p, i) => {
+    const st = i < curIdx ? 'pl-done' : i === curIdx ? 'pl-cur' : 'pl-next';
+    const node = i < curIdx ? icCheck : i === curIdx ? icDot : '';
+    const here = i === curIdx ? '<span class="pl-here">You are here</span>' : '';
+    return `<div class="pl-row ${st}"><div class="pl-node">${node}</div><div class="pl-card"><div class="pl-top"><span class="pl-name">${p.label}${here}</span><span class="pl-range">${p.range}</span></div><div class="pl-text">${p.text}</div></div></div>`;
+  }).join('');
 }
 
 // ===================== STORIES =====================
