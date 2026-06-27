@@ -330,6 +330,32 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .ws-why-box textarea::placeholder{color:rgba(255,255,255,0.32);}
   .ws-why-box textarea:focus{outline:none;border-color:#C4BCFF;}
   .ws-why-hint{font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.5;}
+  /* Relapse pattern chart (History) — show the user WHEN their streaks break */
+  .rp-card{background:var(--sf);border:.5px solid var(--bd);border-radius:16px;padding:16px;}
+  .rp-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+  .rp-title svg{color:var(--ac2);flex-shrink:0;}
+  .rp-head{font-size:13px;color:var(--ts);line-height:1.65;margin-bottom:16px;}
+  .rp-head b{color:var(--cor2);font-weight:700;}
+  .rp-head b.pos{color:var(--ac2);}
+  .rp-bars{display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:88px;}
+  .rp-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px;}
+  .rp-cnt{font-size:11px;font-weight:700;color:var(--ts);height:13px;line-height:13px;}
+  .rp-col.peak .rp-cnt{color:var(--cor2);}
+  .rp-bar{width:100%;max-width:26px;border-radius:5px 5px 2px 2px;background:var(--ac4);min-height:3px;}
+  .rp-bar.peak{background:linear-gradient(180deg,#E66B3D,#C7431B);}
+  .rp-bar.empty{background:var(--bds);}
+  .rp-dow{font-size:11px;color:var(--tt);font-weight:600;}
+  .rp-col.peak .rp-dow{color:var(--cor2);}
+  .rp-bands{display:flex;gap:7px;margin-top:14px;}
+  .rp-band{flex:1;text-align:center;background:var(--bg);border:.5px solid var(--bd);border-radius:10px;padding:9px 4px;}
+  .rp-band.peak{background:var(--cor50);border-color:var(--cor6);}
+  .rp-band-cnt{font-size:15px;font-weight:700;color:var(--tx);}
+  .rp-band.peak .rp-band-cnt{color:var(--cor2);}
+  .rp-band-lbl{font-size:10.5px;color:var(--ts);font-weight:600;margin-top:2px;}
+  .rp-band.peak .rp-band-lbl{color:var(--cor2);}
+  .rp-foot{font-size:12.5px;color:var(--ac2);line-height:1.6;margin-top:16px;background:var(--acl);border-radius:10px;padding:11px 13px;}
+  .rp-teaser{font-size:12.5px;color:var(--ts);line-height:1.65;}
+  .rp-teaser b{color:var(--ac2);font-weight:700;}
   .ws-features{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;margin-top:28px;text-align:left;}
   .ws-feat{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,0.05);border:.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;}
   .ws-feat-ic{display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--ac);}
@@ -813,6 +839,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   <!-- HISTORY -->
   <div id="s-history" class="sec">
     <button class="subback" onclick="goTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+    <div id="relapse-insights" style="display:none;margin-bottom:14px;"></div>
     <div class="btn-row" style="margin-bottom:11px">
       <button class="btn-g" id="hf-all" style="border-color:var(--ac);color:var(--ac)">All</button>
       <button class="btn-g" id="hf-daily">Daily</button>
@@ -2468,6 +2495,7 @@ function uFmtSecs(s) {
 }
 
 function renderHistory(f) {
+  renderRelapsePatterns();
   ['all','daily','weekly','urge'].forEach(x => {
     const el = document.getElementById('hf-'+x);
     if(el) { el.style.borderColor = x===f?'var(--ac)':''; el.style.color = x===f?'var(--ac)':''; }
@@ -2497,9 +2525,69 @@ function renderHistory(f) {
   el.innerHTML = summary + [...list].reverse().map(e => {
     const dt = new Date(e.date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) + ' · day ' + e.day;
     if(e.type === 'urge') return `<div class="urge-entry"><div class="e-date">${dt}</div><div class="e-mood">Rode out a${e.level>=75?'n':''} ${uLevelLabel(e.level)} urge</div><div class="e-note">Started at ${e.level} · stayed with it ${uFmtSecs(e.secs)}</div></div>`;
+    if(e.type === 'relapse') return `<div class="entry"><div class="e-date">${dt}</div><div class="e-mood" style="color:var(--cor2)">Streak ended</div><div class="e-note">Reached day ${e.day} — a fresh start from here.</div></div>`;
     if(e.type === 'weekly') return `<div class="wk-card"><div class="e-date">${dt} · <span style="color:var(--amb8);font-weight:600">Weekly review</span></div>${e.wentWell?'<div class="e-note"><b>Went well:</b> '+escHtml(e.wentWell)+'</div>':''}${e.hardest?'<div class="e-note"><b>Hardest:</b> '+escHtml(e.hardest)+'</div>':''}${e.intention?'<div class="e-note"><b>Intention:</b> '+escHtml(e.intention)+'</div>':''}</div>`;
     return `<div class="entry"><div class="e-date">${dt}</div><div class="e-mood">${escHtml(e.mood)} · E${e.energy} C${e.clarity} U${e.urge}</div>${e.triggers&&e.triggers.length?'<div class="e-note">Triggers: '+e.triggers.map(escHtml).join(', ')+'</div>':''}${e.note?'<div class="e-note">'+escHtml(e.note)+'</div>':''}</div>`;
   }).join('');
+}
+
+// Show the user WHEN their streaks tend to break — the day of week, the time of
+// day, and roughly how far in — so a relapse becomes a pattern they can plan
+// around instead of a mystery. Fills in from logged relapses (see reset button).
+function renderRelapsePatterns() {
+  const box = document.getElementById('relapse-insights');
+  if(!box) return;
+  const icChart = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6" rx="1"/><rect x="13" y="7" width="3" height="10" rx="1"/></svg>';
+  const rel = S.entries.filter(e => e.type === 'relapse');
+  if(rel.length === 0) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.style.display = 'block';
+  if(rel.length < 2) {
+    box.innerHTML = `<div class="rp-card"><div class="rp-title">${icChart}Where your streaks break</div><div class="rp-teaser">We've logged <b>1</b> streak ending so far. After one more, we'll show you the day and time you're most at risk — so the pattern stops being a mystery and you can plan for it.</div></div>`;
+    return;
+  }
+
+  const SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monFirst = [1,2,3,4,5,6,0];           // display order Mon→Sun
+  const dayCnt = [0,0,0,0,0,0,0];             // indexed by getDay()
+  const bands = {morning:0,afternoon:0,evening:0,night:0};
+  let daySum = 0;
+  rel.forEach(e => {
+    const d = new Date(e.date);
+    dayCnt[d.getDay()]++;
+    const h = d.getHours();
+    const b = (h>=5&&h<12)?'morning':(h>=12&&h<17)?'afternoon':(h>=17&&h<22)?'evening':'night';
+    bands[b]++;
+    daySum += (e.day||0);
+  });
+  const maxDay = Math.max(...dayCnt);
+  let peakDow = 0, peakC = 0;
+  dayCnt.forEach((c,i) => { if(c > peakC) { peakC = c; peakDow = i; } });
+  const bandMeta = [['morning','Morning'],['afternoon','Afternoon'],['evening','Evening'],['night','Night']];
+  let peakBand = 'morning', peakBandC = 0;
+  bandMeta.forEach(([k]) => { if(bands[k] > peakBandC) { peakBandC = bands[k]; peakBand = k; } });
+  const peakBandLbl = bandMeta.find(b => b[0] === peakBand)[1].toLowerCase();
+  const avgDay = Math.round(daySum / rel.length);
+
+  const bars = monFirst.map(i => {
+    const c = dayCnt[i];
+    const isPeak = (i === peakDow && c > 0);
+    const h = maxDay ? Math.round((c / maxDay) * 100) : 0;
+    return `<div class="rp-col${isPeak?' peak':''}"><div class="rp-cnt">${c||''}</div><div class="rp-bar ${c?(isPeak?'peak':''):'empty'}" style="height:${c?Math.max(h,10):0}%"></div><div class="rp-dow">${SHORT[i]}</div></div>`;
+  }).join('');
+
+  const bandHtml = bandMeta.map(([k,lbl]) => {
+    const isPeak = (k === peakBand && bands[k] > 0);
+    return `<div class="rp-band${isPeak?' peak':''}"><div class="rp-band-cnt">${bands[k]}</div><div class="rp-band-lbl">${lbl}</div></div>`;
+  }).join('');
+
+  box.innerHTML = `<div class="rp-card">
+    <div class="rp-title">${icChart}Where your streaks break</div>
+    <div class="rp-head">Across <b class="pos">${rel.length}</b> streaks that ended, the wave usually takes you on <b>${FULL[peakDow]}</b>${peakBandC>0?`, in the <b>${peakBandLbl}</b>`:''} — and most often around <b class="pos">day ${avgDay}</b>.</div>
+    <div class="rp-bars">${bars}</div>
+    <div class="rp-bands">${bandHtml}</div>
+    <div class="rp-foot">That's your danger window. Going into <b style="color:inherit;font-weight:700">${FULL[peakDow]} ${peakBandLbl}</b>, get ahead of it: open the SOS tool early, change your surroundings, and read your reason before the urge builds — not after.</div>
+  </div>`;
 }
 
 // ===================== INSIGHTS =====================
@@ -3764,6 +3852,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('reset-btn').addEventListener('click', function() {
     if(confirm(t('confirmReset'))) {
+      // Log when the streak ended so the History "Where your streaks break"
+      // chart can show the user their day/time pattern. Only log a real streak.
+      if(S.startDate) {
+        S.entries.push({type:'relapse', date:new Date().toISOString(), day:calcStreak()});
+      }
       S.startDate = null; S.urgesBeat = 0; save(); updateHome(); toast(t('toastStreakReset'));
     }
   });
