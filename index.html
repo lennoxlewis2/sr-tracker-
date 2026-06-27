@@ -325,6 +325,11 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   .ws-icon{display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
   .ws-title{font-size:30px;font-weight:800;color:white;margin-bottom:12px;line-height:1.2;letter-spacing:-.5px;}
   .ws-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.7;max-width:300px;}
+  .ws-why-box{width:100%;max-width:340px;margin-top:6px;}
+  .ws-why-box textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(196,188,255,0.3);border-radius:12px;color:#fff;font-size:15px;line-height:1.5;padding:13px 14px;resize:none;font-family:inherit;}
+  .ws-why-box textarea::placeholder{color:rgba(255,255,255,0.32);}
+  .ws-why-box textarea:focus{outline:none;border-color:#C4BCFF;}
+  .ws-why-hint{font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.5;}
   .ws-features{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px;margin-top:28px;text-align:left;}
   .ws-feat{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,0.05);border:.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;}
   .ws-feat-ic{display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--ac);}
@@ -495,7 +500,30 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       </div>
     </div>
 
-    <!-- SLIDE 4: Install CTA -->
+    <!-- SLIDE 4: Your why -->
+    <div class="ws-slide">
+      <div class="ws-icon">
+        <svg width="88" height="88" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 0 20px rgba(108,92,231,0.9)) drop-shadow(0 0 8px rgba(196,188,255,0.5));">
+          <g stroke="url(#wsAnchor4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <circle cx="12" cy="5" r="2.5"/>
+            <line x1="12" y1="7.5" x2="12" y2="21"/>
+            <line x1="7.5" y1="11" x2="16.5" y2="11"/>
+            <path d="M5 16a7 7 0 0 0 14 0"/>
+            <line x1="5" y1="16" x2="3.4" y2="16"/>
+            <line x1="19" y1="16" x2="20.6" y2="16"/>
+          </g>
+          <defs><linearGradient id="wsAnchor4" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8E3FF"/><stop offset="55%" stop-color="#C4BCFF"/><stop offset="100%" stop-color="#6C5CE7"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="ws-title">Why are you<br>here?</div>
+      <div class="ws-sub" style="margin-bottom:18px;">In a hard moment, your own reason hits harder than anything we could write. Put it into words once — we'll show it back to you the instant an urge strikes.</div>
+      <div class="ws-why-box">
+        <textarea id="ws-why-input" rows="3" maxlength="280" placeholder="The man I'm becoming doesn't do this. I want to feel clear, driven and in control of my own life…"></textarea>
+        <div class="ws-why-hint">Optional — you can always add or change this later in Settings.</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Install CTA -->
     <div class="ws-slide">
       <div class="ws-icon">
         <svg width="88" height="88" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 0 20px rgba(108,92,231,0.9)) drop-shadow(0 0 8px rgba(196,188,255,0.5));animation:flamePulse 2.2s ease-in-out infinite;">
@@ -529,6 +557,7 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
   <div class="ws-footer">
     <div class="ws-dots" id="ws-dots">
       <div class="ws-dot on"></div>
+      <div class="ws-dot"></div>
       <div class="ws-dot"></div>
       <div class="ws-dot"></div>
       <div class="ws-dot"></div>
@@ -3920,6 +3949,17 @@ if('serviceWorker' in navigator) {
 }
 
 function _hideWS() {
+  // Capture the onboarding "why" (if they wrote one) before the screen closes —
+  // covers every exit path: "Let's go", Skip, and install-accepted.
+  try {
+    var inp = document.getElementById('ws-why-input');
+    if(inp && inp.value.trim()) {
+      S.why = inp.value.trim();
+      save();
+      var setInp = document.getElementById('set-why-input');
+      if(setInp) setInp.value = S.why;
+    }
+  } catch(e){}
   var el = document.getElementById('ws');
   if(el) el.classList.add('hidden');
   localStorage.setItem('ws_seen', '1');
@@ -3937,7 +3977,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 
-  var totalSlides = 4;
+  var totalSlides = 5;
   var curSlide = 0;
   var slides = document.getElementById('ws-slides');
   var dots = document.querySelectorAll('.ws-dot');
