@@ -24,6 +24,25 @@ Urge Wave canvas `requestAnimationFrame` loop). The capture waits for the page t
 go idle and it never does. So default to `preview_eval` + `preview_console_logs`,
 and only screenshot as a last resort after pausing animations (see below).
 
+**In practice, treat `preview_screenshot` as unavailable** — it has hung even on
+a static, animation-free test page in this environment. Don't burn calls retrying
+it. To check geometry/layout, read it from the DOM via eval (`getBoundingClientRect`,
+SVG `getBBox`, `getComputedStyle`). To *show the user* visual output (e.g. new
+icon/flame art), build it with the `visualize`/`show_widget` tool instead of
+screenshotting the app.
+
+## Server & ports — don't thrash
+
+- **Reuse the existing `transmute-app` config (port 3000).** Just `preview_start`
+  it. If a later call says "Server not found", the server died — `preview_start`
+  `transmute-app` again and carry on; do NOT invent a new port.
+- There's a **5-server-per-worktree limit.** Adding a fresh `transmute-app-N` port
+  config for each verification hits the cap and leaves orphaned servers. If you
+  truly need a clean one, `preview_list` then `preview_stop` an old server rather
+  than adding configs. **Any temp config you add must be reverted before shipping.**
+- A cache-busting reload (`location.href = location.origin + '/?fresh=' + Date.now()`)
+  is enough to pick up an `index.html` edit — no need to restart the server.
+
 ## The recipe
 
 1. **Start/confirm the server.** `preview_start` with name `transmute-app` (the
