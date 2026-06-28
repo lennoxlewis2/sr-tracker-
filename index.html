@@ -4802,38 +4802,86 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-// ---- Android back button handler ----
-history.pushState({page:'home'}, '');
+// ---- Android / TWA hardware back button ----
+// Native apps peel one layer per back press: close the top modal, then the
+// overlay under it, then step back to the home tab, and only THEN exit. We do
+// the same by keeping one "buffer" history entry on top of the app at all times.
+// Each back press pops that buffer; _backDismiss() closes the single top-most
+// open layer and we immediately re-arm the buffer, so repeated presses unwind
+// the stack one step at a time. When nothing is left to dismiss we let the
+// press fall through and the OS exits the app.
+history.pushState({trap:true}, '');
 
-window.addEventListener('popstate', function(e) {
-  const activeTab = document.querySelector('.tab.on');
-  const activeTabId = activeTab ? activeTab.dataset.tab : 'home';
+const _visible = el => el && el.style.display !== 'none' && el.style.display !== '';
 
-  // Check if we're on checkin tab or if checkin section is visible
-  const checkinSec = document.getElementById('s-checkin');
-  const checkinVisible = checkinSec && checkinSec.classList.contains('on');
+function _backDismiss() {
+  // Return true if a layer was closed (stay in app); false to allow exit.
 
-  // Check if weekly form is showing within checkin
-  const weeklyForm = document.getElementById('weekly-form');
-  const weeklyVisible = weeklyForm && weeklyForm.style.display !== 'none' && weeklyForm.style.display !== '';
+  // 1. Milestone celebration modal (top-most)
+  const ms = document.getElementById('ms-overlay');
+  if(ms && ms.classList.contains('on')) { ms.classList.remove('on'); return true; }
 
-  if(weeklyVisible) {
-    // Back from weekly review goes to daily form
+  // 2. Phase detail overlay
+  const pd = document.getElementById('phase-detail');
+  if(pd && pd.style.display === 'flex') { pd.style.display = 'none'; return true; }
+
+  // 3. Reset-streak confirmation
+  const ro = document.getElementById('reset-overlay');
+  if(ro && ro.style.display === 'flex') { ro.style.display = 'none'; return true; }
+
+  // 4. Name entry / rename modal
+  const nm = document.getElementById('name-modal');
+  if(nm && nm.style.display === 'flex') { nm.style.display = 'none'; return true; }
+
+  // 5. Settings overlay
+  const so = document.getElementById('s-overlay');
+  if(so && so.style.display === 'block') { closeSettings(); return true; }
+
+  // 6. Paywall
+  const pw = document.getElementById('uw-paywall');
+  if(pw && !pw.classList.contains('hidden')) {
+    if(window._hidePaywall) _hidePaywall(); else pw.classList.add('hidden');
+    return true;
+  }
+
+  // 7. Urge sub-screen (intensity / live surf / win) -> back to the SOS home
+  const surfSec = document.getElementById('s-urge');
+  if(surfSec && surfSec.classList.contains('on')) {
+    const ui = document.getElementById('urge-intensity');
+    const us = document.getElementById('urge-surf');
+    const uwin = document.getElementById('urge-win');
+    if(_visible(ui) || _visible(us) || _visible(uwin)) {
+      // Stop any running surf timers/animation so they don't leak in the background.
+      clearInterval(uIntInterval); clearInterval(uElapsedInterval);
+      if(uWaveAnim) cancelAnimationFrame(uWaveAnim);
+      uReset(); // resets the inner timer/breath visuals + shows urge-home
+      // uReset() doesn't hide these sub-screens (goTab does) — clear them here.
+      if(ui) ui.style.display = 'none';
+      if(us) us.style.display = 'none';
+      if(uwin) uwin.style.display = 'none';
+      return true;
+    }
+  }
+
+  // 8. Weekly review -> daily check-in form
+  const wf = document.getElementById('weekly-form');
+  if(_visible(wf)) {
     const df = document.getElementById('daily-form');
     if(df) df.style.display = '';
-    if(weeklyForm) weeklyForm.style.display = 'none';
-    history.pushState({page:'home'}, '');
-    return;
+    wf.style.display = 'none';
+    return true;
   }
 
-  if(checkinVisible || activeTabId !== 'home') {
-    // Go back to home tab
-    goTab('home');
-    history.pushState({page:'home'}, '');
-    return;
-  }
+  // 9. Any non-home section (check-in, history, phases, stories, SOS, transmute) -> home
+  const activeSec = document.querySelector('.sec.on');
+  if(activeSec && activeSec.id !== 's-home') { goTab('home'); return true; }
 
-  // Already on home — let browser exit the app
+  return false; // nothing left to dismiss — let the OS exit the app
+}
+
+window.addEventListener('popstate', function() {
+  if(_backDismiss()) history.pushState({trap:true}, ''); // re-arm the buffer entry
+  // else: the back press is consumed by the browser/TWA and the app exits
 });
 
 
