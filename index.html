@@ -287,6 +287,22 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
 .pose-header{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:7px;}
 .pose-why{font-size:12px;color:var(--ts);background:var(--bg);border-radius:7px;padding:9px;margin-bottom:11px;line-height:1.6;font-style:italic;}
 .pose-dur{font-size:11px;font-weight:600;color:var(--ac);margin-top:9px;padding:5px 9px;background:var(--acl);border-radius:6px;display:inline-block;}
+/* ===== Premium practice cards (Transmute tab) ===== */
+.prac{background:linear-gradient(165deg,rgba(26,22,46,0.96),rgba(13,12,22,0.99));border:.5px solid rgba(255,255,255,0.08);border-radius:18px;margin-bottom:14px;overflow:hidden;box-shadow:0 6px 28px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.05);}
+.prac-top{display:flex;align-items:center;gap:12px;padding:15px 16px 13px;border-bottom:.5px solid rgba(255,255,255,0.06);}
+.prac-ico{flex-shrink:0;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(108,92,231,0.30),rgba(72,52,200,0.10));border:.5px solid rgba(168,156,236,0.30);}
+.prac-h{flex:1;min-width:0;}
+.prac-name{font-size:16px;font-weight:700;color:var(--tx);letter-spacing:-.01em;line-height:1.2;}
+.prac-sub{font-size:11px;color:var(--ac2);font-weight:500;margin-top:3px;opacity:.85;}
+.prac-chips{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 0;}
+.chip{font-size:10.5px;font-weight:600;color:var(--ac2);background:rgba(108,92,231,0.14);border:.5px solid rgba(168,156,236,0.26);border-radius:20px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;letter-spacing:.01em;}
+.chip.amber{color:var(--amb6);background:var(--amb50);border-color:var(--amb1);}
+.chip.green{color:var(--grn6);background:var(--grn50);border-color:var(--grn1);}
+.prac-body{padding:13px 16px 15px;}
+.prac-lede{font-size:12.5px;color:var(--ts);line-height:1.65;margin-bottom:14px;}
+.prac-lede b{color:var(--ac2);font-weight:600;}
+.safety{display:flex;gap:8px;align-items:flex-start;background:var(--amb50);border:.5px solid var(--amb1);border-radius:10px;padding:9px 11px;margin-top:11px;font-size:11.5px;color:var(--amb6);line-height:1.5;}
+.safety svg{flex-shrink:0;margin-top:1px;opacity:.9;}
 .med-step{margin-bottom:14px;padding-bottom:14px;border-bottom:.5px solid var(--bd);}
 .med-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
 .med-step-title{font-size:11px;font-weight:700;color:var(--ac);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
@@ -994,37 +1010,66 @@ textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--
       <button class="btn-g tr-nav" data-tr="poses"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="4" r="1.5"/><path d="M8 9h8"/><path d="M9 9v6l-2 5"/><path d="M15 9v6l2 5"/><path d="M12 9v4"/></svg>Poses</button>
     </div>
     <div id="tr-pranayama" style="display:none">
-      <div class="card"><div class="lbl">What is Pranayama?</div><p style="font-size:13px;color:var(--ts);line-height:1.7;margin-bottom:0">Pranayama is ancient yogic breathwork that directly controls your life force energy (prana). When sexual energy arises, controlled breathing redirects it up the spine rather than letting it discharge downward.</p></div>
-      <div class="card">
-        <div class="lbl" style="margin-bottom:9px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-6-8-6-14z"/><path d="M12 12c0 3-2 4-2 7a2 2 0 0 0 4 0c0-3-2-4-2-7z" fill="rgba(255,107,53,0.3)"/></svg>Breath of Fire (Kapalabhati)</div>
-        <p style="font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:10px">Best used when urges arise suddenly. Burns sexual energy rapidly and raises vibration.</p>
-        <div class="guide-step"><span class="step-num">1</span><span>Sit upright, spine straight. Place hands on knees, palms up.</span></div>
-        <div class="guide-step"><span class="step-num">2</span><span>Take a deep inhale through your nose to prepare.</span></div>
-        <div class="guide-step"><span class="step-num">3</span><span>Begin rapid, forceful exhales through the nose — about 1 per second. The inhale happens passively.</span></div>
-        <div class="guide-step"><span class="step-num">4</span><span>Do 30 rapid breaths. Feel the heat rise up your spine.</span></div>
-        <div class="guide-step"><span class="step-num">5</span><span>After 30, take a full deep inhale, hold for 10 seconds, then release slowly.</span></div>
-        <div class="guide-step"><span class="step-num">6</span><span>Repeat 3 rounds. Notice the urge dissolving into energy.</span></div>
-        <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Do this the moment you feel an urge. The energy transmutes in real time.</div>
+      <div class="card" style="background:linear-gradient(150deg,rgba(26,10,58,0.6),rgba(13,13,20,0.9));border-color:rgba(123,79,255,0.35)">
+        <div class="lbl" style="color:var(--ac2)">The Practice of Pranayama</div>
+        <p style="font-size:13px;color:var(--ts);line-height:1.7;margin-bottom:0"><b style="color:var(--ac2);font-weight:600">Prana</b> is your life-force; <b style="color:var(--ac2);font-weight:600">ayama</b> means to direct it. These breath techniques take the charge that builds during retention and draw it <i>up</i> the spine — into focus, drive and calm — instead of letting it discharge. Start with whichever one fits the moment.</p>
       </div>
-      <div class="card">
-        <div class="lbl" style="margin-bottom:9px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7F77DD" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" opacity=".5"/></svg>Nadi Shodhana (Alternate Nostril)</div>
-        <p style="font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:10px">Balances left and right hemispheres. Calms overactive sexual thought. Best as a daily morning practice.</p>
-        <div class="guide-step"><span class="step-num">1</span><span>Sit comfortably. Use your right hand — rest index and middle finger on your forehead.</span></div>
-        <div class="guide-step"><span class="step-num">2</span><span>Close your right nostril with your thumb. Inhale slowly through the left for 4 counts.</span></div>
-        <div class="guide-step"><span class="step-num">3</span><span>Close both nostrils. Hold for 4 counts.</span></div>
-        <div class="guide-step"><span class="step-num">4</span><span>Release right nostril, exhale slowly for 8 counts.</span></div>
-        <div class="guide-step"><span class="step-num">5</span><span>Inhale through right nostril for 4 counts. Hold. Exhale through left for 8 counts.</span></div>
-        <div class="guide-step"><span class="step-num">6</span><span>That's one cycle. Do 10 cycles daily for profound mental clarity.</span></div>
-        <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Practice every morning to keep energy channelled upward throughout the day.</div>
+
+      <!-- Kapalabhati -->
+      <div class="prac">
+        <div class="prac-top">
+          <div class="prac-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF8A4C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-6-8-6-14z"/><path d="M12 13c0 2.5-2 3.5-2 6a2 2 0 0 0 4 0c0-2.5-2-3.5-2-6z" fill="rgba(255,138,76,0.35)" stroke="none"/></svg></div>
+          <div class="prac-h"><div class="prac-name">Breath of Fire</div><div class="prac-sub">Kapalabhati · Skull-Shining Breath</div></div>
+        </div>
+        <div class="prac-chips"><span class="chip">⚡ When an urge hits</span><span class="chip">~3 min</span><span class="chip green">Beginner</span></div>
+        <div class="prac-body">
+          <p class="prac-lede">Rapid, pumping exhales that pull the charge up out of the pelvis fast. The single best tool the moment a craving spikes.</p>
+          <div class="guide-step"><span class="step-num">1</span><span>Sit tall, spine straight, shoulders relaxed. Rest your hands on your knees.</span></div>
+          <div class="guide-step"><span class="step-num">2</span><span>Inhale about halfway through the nose — no need to fill all the way.</span></div>
+          <div class="guide-step"><span class="step-num">3</span><span>Exhale in a sharp burst by snapping your lower belly inward. The inhale rebounds on its own — don't force it.</span></div>
+          <div class="guide-step"><span class="step-num">4</span><span>Find a steady rhythm of about one pump per second. Keep the chest still — all the movement is in the belly.</span></div>
+          <div class="guide-step"><span class="step-num">5</span><span>After 30 pumps, inhale fully, hold gently for a few seconds, then release slowly.</span></div>
+          <div class="guide-step"><span class="step-num">6</span><span>Rest for a few normal breaths, then repeat for 3 rounds.</span></div>
+          <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>The instant an urge rises, 30 fast pumps move the energy from the pelvis up into the head and chest — you'll feel it shift in real time.</div>
+          <div class="safety"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 2.7L1.8 17a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 2.7a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Skip if you're pregnant, or have high blood pressure, heart issues, or have just eaten. Stop and breathe normally if you feel light-headed.</span></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="lbl" style="margin-bottom:9px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5DCAA5" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>Mula Bandha (Root Lock)</div>
-        <p style="font-size:13px;color:var(--ts);line-height:1.6;margin-bottom:10px">Physically redirects sexual energy up the spine. The secret weapon of SR practitioners.</p>
-        <div class="guide-step"><span class="step-num">1</span><span>Sit or stand. Contract the perineum muscles (same as stopping urination mid-flow).</span></div>
-        <div class="guide-step"><span class="step-num">2</span><span>Hold the contraction firmly. Breathe normally.</span></div>
-        <div class="guide-step"><span class="step-num">3</span><span>Visualise energy rising up from the base of your spine toward your crown.</span></div>
-        <div class="guide-step"><span class="step-num">4</span><span>Hold 10–30 seconds, release, repeat 10 times.</span></div>
-        <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Combine with Breath of Fire for maximum effect during peak urge moments.</div>
+
+      <!-- Nadi Shodhana -->
+      <div class="prac">
+        <div class="prac-top">
+          <div class="prac-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9D8BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" opacity=".5"/></svg></div>
+          <div class="prac-h"><div class="prac-name">Alternate-Nostril Breath</div><div class="prac-sub">Nadi Shodhana · Channel Purification</div></div>
+        </div>
+        <div class="prac-chips"><span class="chip">🌅 Daily reset</span><span class="chip">~5 min</span><span class="chip green">Beginner</span></div>
+        <div class="prac-body">
+          <p class="prac-lede">Steadies a restless, over-stimulated mind and balances the nervous system. Best as a calm morning practice rather than an emergency tool.</p>
+          <div class="guide-step"><span class="step-num">1</span><span>Sit comfortably. With your right hand, fold the index and middle fingers down — you'll seal the right nostril with your thumb and the left with your ring finger.</span></div>
+          <div class="guide-step"><span class="step-num">2</span><span>Close the right nostril with your thumb. Inhale slowly through the left for a count of 4.</span></div>
+          <div class="guide-step"><span class="step-num">3</span><span>Seal both nostrils (ring finger closes the left). Hold gently for 4.</span></div>
+          <div class="guide-step"><span class="step-num">4</span><span>Lift the thumb and exhale through the right nostril for a count of 8.</span></div>
+          <div class="guide-step"><span class="step-num">5</span><span>Inhale through the right for 4, seal both and hold for 4, then exhale through the left for 8.</span></div>
+          <div class="guide-step"><span class="step-num">6</span><span>That completes one round. Build up to 10 rounds, keeping the breath smooth and silent.</span></div>
+          <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Do this first thing in the morning to settle the mind before it reaches for a cheap hit of dopamine.</div>
+        </div>
+      </div>
+
+      <!-- Mula Bandha -->
+      <div class="prac">
+        <div class="prac-top">
+          <div class="prac-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5DCAA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V7"/><path d="M6 13l6-6 6 6"/><circle cx="12" cy="20" r="1.5" fill="#5DCAA5" stroke="none"/></svg></div>
+          <div class="prac-h"><div class="prac-name">Root Lock</div><div class="prac-sub">Mula Bandha · The Seal at the Base</div></div>
+        </div>
+        <div class="prac-chips"><span class="chip">🔒 Seals the energy</span><span class="chip">~3 min</span><span class="chip amber">Intermediate</span></div>
+        <div class="prac-body">
+          <p class="prac-lede">A subtle internal lift of the pelvic floor that keeps the charge from draining downward and guides it up the spine. The core engine of transmutation.</p>
+          <div class="guide-step"><span class="step-num">1</span><span>Sit tall with a straight spine, or stand. Take a few slow breaths to settle.</span></div>
+          <div class="guide-step"><span class="step-num">2</span><span>Inhale fully. As you hold the breath in, gently lift and contract the pelvic floor — the muscles between the genitals and the anus (the ones that stop the flow of urine).</span></div>
+          <div class="guide-step"><span class="step-num">3</span><span>Keep everything else soft — jaw, belly and shoulders relaxed. Only the root lifts.</span></div>
+          <div class="guide-step"><span class="step-num">4</span><span>Hold the lift and the breath for as long as it's comfortable, then release the lock as you exhale slowly.</span></div>
+          <div class="guide-step"><span class="step-num">5</span><span>As you lift, picture the charge drawing up from the base of the spine toward the crown. Repeat for 10 slow rounds.</span></div>
+          <div class="tip-box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" style="vertical-align:-1px;margin-right:4px;opacity:.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Lock on the inhale-hold, release on the exhale. Paired with Breath of Fire during a peak urge, it's unbeatable.</div>
+        </div>
       </div>
     </div>
     <div id="tr-meditation" style="display:none">
